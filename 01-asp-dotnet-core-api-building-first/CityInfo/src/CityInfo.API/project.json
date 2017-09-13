@@ -14,7 +14,9 @@
     "Microsoft.Extensions.Logging.Debug": "1.1.1",
     "NLog.Extensions.Logging": "1.0.0-rtm-beta5",
     "Microsoft.Extensions.Configuration.FileExtensions": "1.1.1",
-    "Microsoft.Extensions.Configuration.Json": "1.1.1"
+    "Microsoft.Extensions.Configuration.Json": "1.1.1",
+    "Microsoft.EntityFrameworkCore.SqlServer": "1.1.1",
+    "Microsoft.EntityFrameworkCore": "1.1.1"
   },
 
   "tools": {
