@@ -10,8 +10,8 @@ namespace CityInfo.API.Services
     {
         private ILogger<CloudMailService> _logger;
 
-        private string fromAddress = "from";
-        private string toAddress = "to";
+        private string fromAddress = Startup.Configuration["mailSettings:fromAddress"];
+        private string toAddress = Startup.Configuration["mailSettings:toAddress"];
 
         public CloudMailService(ILogger<CloudMailService> logger)
         {

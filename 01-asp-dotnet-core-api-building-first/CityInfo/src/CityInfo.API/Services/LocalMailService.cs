@@ -10,8 +10,8 @@ namespace CityInfo.API.Services
     {
         private ILogger<LocalMailService> _logger;
 
-        private string fromAddress = "from";
-        private string toAddress = "to";
+        private string fromAddress = Startup.Configuration["mailSettings:fromAddress"];
+        private string toAddress = Startup.Configuration["mailSettings:toAddress"];
 
         public LocalMailService(ILogger<LocalMailService> logger)
         {
