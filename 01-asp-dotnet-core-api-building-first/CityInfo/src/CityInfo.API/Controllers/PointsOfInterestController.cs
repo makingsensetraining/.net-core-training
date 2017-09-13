@@ -1,0 +1,99 @@
+﻿using CityInfo.API.Models;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace CityInfo.API.Controllers
+{
+    [Route("api/cities")]
+    public class PointsOfInterestController:Controller
+    {
+        [HttpGet("{cityId}/pointsOfInterest")]
+        public IActionResult GetPointsOfInterest(int cityId)
+        {
+            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x=> x.Id == cityId);
+
+            if (city == null)
+                return NotFound();
+
+            return Ok(city.PointsOfInterest);
+        }
+
+        [HttpGet("{cityId}/pointsOfInterest/{interestId}", Name = "GetPointsOfInterest")]
+        public IActionResult GetPointsOfInterest(int cityId, int interestId)
+        {
+            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+
+            if (city == null)
+                return NotFound();
+
+            var interest = city.PointsOfInterest.FirstOrDefault(x => x.Id == interestId);
+
+            if (interest == null)
+                return NotFound();
+
+            return Ok(interest);
+        }
+
+        [HttpPost("{cityId}/pointsOfInterest")]
+        public IActionResult CreatePointOfInterest(int cityId, [FromBody] PointOfInterestForCreationDto interest)
+        {
+            if (interest == null)
+                return BadRequest();
+
+            if (interest.Name == interest.Description)
+                ModelState.AddModelError("Description","Description must be different to the name.");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+
+            if (city == null)
+                return NotFound();
+
+            var id = CitiesDataStore.Current.Cities.SelectMany(x => x.PointsOfInterest).Max(p=>p.Id) + 1;
+
+            var newInterest = new PointOfInterestDto()
+            {
+                Id = id,
+                Name = interest.Name,
+                Description = interest.Description
+            };
+
+            city.PointsOfInterest.Add(newInterest);
+
+            return CreatedAtRoute("GetPointsOfInterest", new {cityId = cityId, interestId = id }, newInterest);
+        }
+
+        [HttpPut("{cityId}/pointsOfInterest/{interestId}")]
+        public IActionResult UpdatePointOfInterest(int cityId, int interestId, [FromBody] PointOfInterestForUpdateDto interest)
+        {
+            if (interest == null)
+                return BadRequest();
+
+            if (interest.Name == interest.Description)
+                ModelState.AddModelError("Description", "Description must be different to the name.");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+
+            if (city == null)
+                return NotFound();
+
+            var interestForUpdate = city.PointsOfInterest.FirstOrDefault(p=> p.Id == interestId);
+
+            if(interestForUpdate == null)
+                return NotFound();
+
+            interestForUpdate.Name = interest.Name;
+            interestForUpdate.Description = interest.Description;
+
+            return NoContent();
+        }
+    }
+}
