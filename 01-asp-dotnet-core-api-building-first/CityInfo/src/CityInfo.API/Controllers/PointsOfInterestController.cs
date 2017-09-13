@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
+using CityInfo.API.Services;
 
 namespace CityInfo.API.Controllers
 {
@@ -13,10 +14,12 @@ namespace CityInfo.API.Controllers
     public class PointsOfInterestController:Controller
     {
         private ILogger<PointsOfInterestController> _logger;
+        private IMailService _mailService;
 
-        public PointsOfInterestController(ILogger<PointsOfInterestController> logger)
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService mailService)
         {
             _logger = logger;
+            _mailService = mailService;
         }
 
         [HttpGet("{cityId}/pointsOfInterest")]
@@ -24,6 +27,7 @@ namespace CityInfo.API.Controllers
         {
             try
             {
+                //throw new Exception("testing...");
 
                 var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
 
@@ -171,6 +175,8 @@ namespace CityInfo.API.Controllers
                 return NotFound();
 
             city.PointsOfInterest.Remove(interest);
+
+            _mailService.Send("Point of interest removed", $"Point of interest with id={interestId} was removed from city with id={cityId}");
 
             return NoContent();
         }

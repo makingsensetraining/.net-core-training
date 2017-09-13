@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
 using NLog.Extensions.Logging;
+using CityInfo.API.Services;
 
 namespace CityInfo.API
 {
@@ -21,14 +22,21 @@ namespace CityInfo.API
         {
             services.AddMvc()
                 .AddMvcOptions(o=>o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()));
-                //Uncomment this code to avoid property name transformation to camel case
-                //.AddJsonOptions(o=> {
-                //    if(o.SerializerSettings.ContractResolver != null)
-                //    {
-                //        var contractResolver = o.SerializerSettings.ContractResolver as DefaultContractResolver;
-                //        contractResolver.NamingStrategy = null;
-                //    }
-                //});
+            //Uncomment this code to avoid property name transformation to camel case
+            //.AddJsonOptions(o=> {
+            //    if(o.SerializerSettings.ContractResolver != null)
+            //    {
+            //        var contractResolver = o.SerializerSettings.ContractResolver as DefaultContractResolver;
+            //        contractResolver.NamingStrategy = null;
+            //    }
+            //});
+
+#if DEBUG
+
+            services.AddTransient<IMailService, LocalMailService>();
+#else
+            services.AddTransient<IMailService, CloudMailService>();
+#endif
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
