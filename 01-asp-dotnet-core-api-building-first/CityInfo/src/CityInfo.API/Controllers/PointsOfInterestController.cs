@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.JsonPatch;
 
 namespace CityInfo.API.Controllers
 {
@@ -92,6 +93,64 @@ namespace CityInfo.API.Controllers
 
             interestForUpdate.Name = interest.Name;
             interestForUpdate.Description = interest.Description;
+
+            return NoContent();
+        }
+
+        [HttpPatch("{cityId}/pointsOfInterest/{interestId}")]
+        public IActionResult PartiallyUpdatePointOfInterest(int cityId, int interestId, 
+            [FromBody] JsonPatchDocument<PointOfInterestForUpdateDto> jsonPatch)
+        {
+            if (jsonPatch == null)
+                return BadRequest();
+
+            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+
+            if (city == null)
+                return NotFound();
+
+            var interest = city.PointsOfInterest.FirstOrDefault(p => p.Id == interestId);
+
+            if (interest == null)
+                return NotFound();
+
+            var interestToPatch = new PointOfInterestForUpdateDto()
+            {
+                Name = interest.Name,
+                Description = interest.Description
+            };
+
+            jsonPatch.ApplyTo(interestToPatch, ModelState);
+
+            TryValidateModel(interestToPatch);
+
+            if (interestToPatch.Name == interestToPatch.Description)
+                ModelState.AddModelError("Description", "Description must be different to the name.");
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            interest.Name = interestToPatch.Name;
+            interest.Description = interestToPatch.Description;
+
+            return NoContent();
+
+        }
+
+        [HttpDelete("{cityId}/pointsOfInterest/{interestId}")]
+        public IActionResult DeletePointOfInterest(int cityId, int interestId)
+        {
+            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
+
+            if (city == null)
+                return NotFound();
+
+            var interest = city.PointsOfInterest.FirstOrDefault(p => p.Id == interestId);
+
+            if (interest == null)
+                return NotFound();
+
+            city.PointsOfInterest.Remove(interest);
 
             return NoContent();
         }
