@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 using CityInfo.API.Services;
+using AutoMapper;
 
 namespace CityInfo.API.Controllers
 {
@@ -37,7 +38,11 @@ namespace CityInfo.API.Controllers
                     return NotFound();
                 }
 
-                return Ok(_repository.GetPointsOfInterestForCity(cityId));
+                var pointsOfInterest = _repository.GetPointsOfInterestForCity(cityId);
+
+                var pointsOfInterestResult = Mapper.Map<IEnumerable<PointOfInterestDto>>(pointsOfInterest);
+
+                return Ok(pointsOfInterestResult);
             }
             catch (Exception ex)
             {
@@ -57,7 +62,9 @@ namespace CityInfo.API.Controllers
             if (interest == null)
                 return NotFound();
 
-            return Ok(interest);
+            var interestResult = Mapper.Map<PointOfInterestDto>(interest);
+
+            return Ok(interestResult);
         }
 
         [HttpPost("{cityId}/pointsOfInterest")]

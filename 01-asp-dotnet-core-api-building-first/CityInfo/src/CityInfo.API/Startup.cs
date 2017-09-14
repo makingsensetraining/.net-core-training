@@ -14,6 +14,7 @@ using CityInfo.API.Services;
 using Microsoft.Extensions.Configuration;
 using CityInfo.API.Entities;
 using Microsoft.EntityFrameworkCore;
+using CityInfo.API.Models;
 
 namespace CityInfo.API
 {
@@ -69,6 +70,12 @@ namespace CityInfo.API
 
             //return status code and description
             app.UseStatusCodePages();
+
+            AutoMapper.Mapper.Initialize(config => {
+                config.CreateMap<City, CityWithoutPointsOfInterestDto>();
+                config.CreateMap<City, CityDto>();
+                config.CreateMap<PointOfInterest, PointOfInterestDto>();
+            });
 
             cityInfoContext.EnsureSeedDataForContext();
 
