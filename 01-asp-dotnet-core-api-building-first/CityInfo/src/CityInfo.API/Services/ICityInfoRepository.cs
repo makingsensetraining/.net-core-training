@@ -13,5 +13,8 @@ namespace CityInfo.API.Services
         IEnumerable<PointOfInterest> GetPointsOfInterestForCity(int cityId);
         PointOfInterest GetPointOfInterestForCity(int cityId, int id);
         bool CityExists(int id);
+        void AddPointOfInterestForCity(int cityId, PointOfInterest pointOfInterest);
+        bool Save();
+        void DeletePointOfInterest(PointOfInterest interest);
     }
 }

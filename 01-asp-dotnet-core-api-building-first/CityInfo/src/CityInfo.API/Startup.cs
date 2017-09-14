@@ -75,16 +75,15 @@ namespace CityInfo.API
                 config.CreateMap<City, CityWithoutPointsOfInterestDto>();
                 config.CreateMap<City, CityDto>();
                 config.CreateMap<PointOfInterest, PointOfInterestDto>();
+                config.CreateMap<PointOfInterestForCreationDto, PointOfInterest>();
+                config.CreateMap<PointOfInterestForUpdateDto, PointOfInterest>();
+                config.CreateMap<PointOfInterest, PointOfInterestForUpdateDto>();
             });
 
             cityInfoContext.EnsureSeedDataForContext();
 
             app.UseMvc();
 
-            //app.Run(async (context) =>
-            //{
-            //    await context.Response.WriteAsync("Hello World!");
-            //});
         }
     }
 }
