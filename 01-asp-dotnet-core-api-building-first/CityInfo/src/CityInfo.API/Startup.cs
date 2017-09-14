@@ -19,16 +19,18 @@ namespace CityInfo.API
 {
     public class Startup
     {
-        public static IConfigurationRoot Configuration;
+        public static IConfiguration Configuration { get; private set; }
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appSettings.json", optional: false, reloadOnChange:true)
-                .AddJsonFile($"appSettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+            Configuration = configuration;
 
-            Configuration = builder.Build();
+            //var builder = new ConfigurationBuilder()
+            //    .SetBasePath(env.ContentRootPath)
+            //    .AddJsonFile("appSettings.json", optional: false, reloadOnChange:true)
+            //    .AddJsonFile($"appSettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+            //Configuration = builder.Build();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -59,8 +61,11 @@ namespace CityInfo.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
+            // No need to add these loggers in ASP.NET Core 2.0: the call to WebHost.CreateDefaultBuilder(args) 
+            // in the Program class takes care of that.
+            //loggerFactory.AddConsole();
+            //loggerFactory.AddDebug();
+
             loggerFactory.AddNLog(); //add NLogLoggerProvider
 
             if (env.IsDevelopment())
