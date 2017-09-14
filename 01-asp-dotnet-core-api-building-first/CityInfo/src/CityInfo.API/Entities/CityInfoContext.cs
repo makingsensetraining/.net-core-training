@@ -11,7 +11,7 @@ namespace CityInfo.API.Entities
         public CityInfoContext(DbContextOptions options)
             :base(options)
         {
-            Database.EnsureCreated();
+            Database.Migrate();
         }
 
         public DbSet<City> Cities { get; set; }

@@ -54,7 +54,7 @@ namespace CityInfo.API
 #else
             services.AddTransient<IMailService, CloudMailService>();
 #endif
-            var connString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=CitiesDB;Integrated Security=True;TrustServerCertificate=True;";
+            var connString = @"Data Source=DESARROLLO25\SQLEXPRESS;Initial Catalog=CityInfoDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             services.AddDbContext<CityInfoContext>(c=> c.UseSqlServer(connString));
         }
 

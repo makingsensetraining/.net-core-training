@@ -19,7 +19,7 @@ namespace CityInfo.API.Controllers
         [HttpGet("api/dummy")]
         public IActionResult Test()
         {
-            var first = _context.Cities.First();
+            var first = _context.Cities.FirstOrDefault();
             return Ok();
         }
     }
