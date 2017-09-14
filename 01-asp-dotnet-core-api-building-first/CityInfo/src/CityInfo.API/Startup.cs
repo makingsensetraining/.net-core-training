@@ -54,18 +54,14 @@ namespace CityInfo.API
 #else
             services.AddTransient<IMailService, CloudMailService>();
 #endif
-            var connString = @"Data Source=DESARROLLO25\SQLEXPRESS;Initial Catalog=CityInfoDB;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            var connString = Configuration["connectionStrings:cityInfoDBConnectionString"];
             services.AddDbContext<CityInfoContext>(c=> c.UseSqlServer(connString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
+            CityInfoContext cityInfoContext)
         {
-            // No need to add these loggers in ASP.NET Core 2.0: the call to WebHost.CreateDefaultBuilder(args) 
-            // in the Program class takes care of that.
-            //loggerFactory.AddConsole();
-            //loggerFactory.AddDebug();
-
             loggerFactory.AddNLog(); //add NLogLoggerProvider
 
             if (env.IsDevelopment())
@@ -79,6 +75,8 @@ namespace CityInfo.API
 
             //return status code and description
             app.UseStatusCodePages();
+
+            cityInfoContext.EnsureSeedDataForContext();
 
             app.UseMvc();
 
