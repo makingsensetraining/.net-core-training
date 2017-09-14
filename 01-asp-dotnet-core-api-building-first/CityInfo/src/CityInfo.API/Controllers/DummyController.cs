@@ -1,4 +1,5 @@
 ﻿using CityInfo.API.Entities;
+using CityInfo.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -9,18 +10,17 @@ namespace CityInfo.API.Controllers
 {
     public class DummyController:Controller
     {
-        private CityInfoContext _context;
+        private ICityInfoRepository _repository;
 
-        public DummyController(CityInfoContext context)
+        public DummyController(ICityInfoRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         [HttpGet("api/dummy")]
         public IActionResult Test()
         {
-            var first = _context.Cities.FirstOrDefault();
-            return Ok();
+            return Ok(_repository.GetCities());
         }
     }
 }

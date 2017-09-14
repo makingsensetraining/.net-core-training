@@ -56,6 +56,7 @@ namespace CityInfo.API
 #endif
             var connString = Configuration["connectionStrings:cityInfoDBConnectionString"];
             services.AddDbContext<CityInfoContext>(c=> c.UseSqlServer(connString));
+            services.AddScoped<ICityInfoRepository, CityInfoRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
