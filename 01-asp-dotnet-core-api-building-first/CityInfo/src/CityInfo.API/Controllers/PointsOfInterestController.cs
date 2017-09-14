@@ -15,11 +15,13 @@ namespace CityInfo.API.Controllers
     {
         private ILogger<PointsOfInterestController> _logger;
         private IMailService _mailService;
+        private ICityInfoRepository _repository;
 
-        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService mailService)
+        public PointsOfInterestController(ILogger<PointsOfInterestController> logger, IMailService mailService, ICityInfoRepository repository)
         {
             _logger = logger;
             _mailService = mailService;
+            _repository = repository;
         }
 
         [HttpGet("{cityId}/pointsOfInterest")]
@@ -29,19 +31,17 @@ namespace CityInfo.API.Controllers
             {
                 //throw new Exception("testing...");
 
-                var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
-
-                if (city == null)
+                if (!_repository.CityExists(cityId))
                 {
                     _logger.LogInformation($"City with id={cityId} was not found.");
                     return NotFound();
                 }
 
-                return Ok(city.PointsOfInterest);
+                return Ok(_repository.GetPointsOfInterestForCity(cityId));
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Exception while getting points of interest for city with id={cityId}.", ex); //REVIEW
+                _logger.LogCritical($"Exception while getting points of interest for city with id={cityId}.", ex);
                 return StatusCode(500, "An exception has occured while handlig your request.");
             }
         }
@@ -49,12 +49,10 @@ namespace CityInfo.API.Controllers
         [HttpGet("{cityId}/pointsOfInterest/{interestId}", Name = "GetPointsOfInterest")]
         public IActionResult GetPointsOfInterest(int cityId, int interestId)
         {
-            var city = CitiesDataStore.Current.Cities.FirstOrDefault(x => x.Id == cityId);
-
-            if (city == null)
+            if (!_repository.CityExists(cityId))
                 return NotFound();
 
-            var interest = city.PointsOfInterest.FirstOrDefault(x => x.Id == interestId);
+            var interest = _repository.GetPointOfInterestForCity(cityId,interestId);
 
             if (interest == null)
                 return NotFound();
