@@ -7,7 +7,7 @@ namespace Library.API.Services
 {
     public class LibraryService : ILibraryService
     {
-        private LibraryContext _context;
+        private readonly LibraryContext _context;
 
         public LibraryService(LibraryContext context)
         {

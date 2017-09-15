@@ -13,6 +13,7 @@ using Library.API.Services;
 using Library.API.Models;
 using Library.API.Helpers;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Library.API.Profiles;
 
 namespace Library
 {
@@ -60,14 +61,7 @@ namespace Library
                 }));
             }
 
-            AutoMapper.Mapper.Initialize(config =>
-            {
-                config.CreateMap<Author, AuthorDto>()
-                    .ForMember(dest => dest.Name, options => options.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-                    .ForMember(dest => dest.Age, options => options.MapFrom(src => DateTimeOffsetExtensions.GetCurrentAge(src.DateOfBirth)));
-
-                config.CreateMap<Book, BookDto>();
-            });
+            AutoMapper.Mapper.Initialize(config => config.AddProfile<LibraryProfile>());
 
             libraryContext.EnsureSeedDataForContext();
 

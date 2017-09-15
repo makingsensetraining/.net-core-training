@@ -12,22 +12,22 @@ namespace Library.API.Controllers
     [Route("api/authors/{authorId}/books")]
     public class BooksController: Controller
     {
-        private ILibraryService _libraryRepository;
+        private readonly ILibraryService _libraryService;
 
-        public BooksController(ILibraryService libraryRepository)
+        public BooksController(ILibraryService libraryService)
         {
-            _libraryRepository = libraryRepository;
+            _libraryService = libraryService;
         }
 
         [HttpGet]
         public IActionResult GetBooksForAuthor(Guid authorId)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            if (!_libraryService.AuthorExists(authorId))
                 return NotFound();
 
-            var booksFromRepo = _libraryRepository.GetBooksForAuthor(authorId);
+            var booksFromRepo = _libraryService.GetBooksForAuthor(authorId);
 
-            var books = Mapper.Map<IEnumerable<BookDto>>(booksFromRepo);
+            var books = Mapper.Map<IList<BookDto>>(booksFromRepo);
 
             return Ok(books);
         }
@@ -35,10 +35,10 @@ namespace Library.API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetBookForAuthor(Guid authorId, Guid id)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            if (!_libraryService.AuthorExists(authorId))
                 return NotFound();
 
-            var bookFromRepo = _libraryRepository.GetBookForAuthor(authorId,id);
+            var bookFromRepo = _libraryService.GetBookForAuthor(authorId,id);
 
             if (bookFromRepo == null)
                 return NotFound();

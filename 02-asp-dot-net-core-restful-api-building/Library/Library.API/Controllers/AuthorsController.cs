@@ -12,7 +12,7 @@ namespace Library.API.Controllers
     [Route("api/authors")]
     public class AuthorsController:Controller
     {
-        private ILibraryService _libraryRepository;
+        private readonly ILibraryService _libraryRepository;
 
         public AuthorsController(ILibraryService libraryRepository)
         {
@@ -24,7 +24,7 @@ namespace Library.API.Controllers
         {
             var authors = _libraryRepository.GetAuthors();
 
-            var authorsResult = Mapper.Map<IEnumerable<AuthorDto>>(authors); 
+            var authorsResult = Mapper.Map<IList<AuthorDto>>(authors); 
 
             return Ok(authorsResult);
         }
