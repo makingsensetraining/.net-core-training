@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using CityInfo.API.Entities;
 using Microsoft.EntityFrameworkCore;
 using CityInfo.API.Models;
+using NLog.Web;
 
 namespace CityInfo.API
 {
@@ -22,9 +23,10 @@ namespace CityInfo.API
     {
         public static IConfiguration Configuration { get; private set; }
 
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
             Configuration = configuration;
+            env.ConfigureNLog("nlog.config");
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -51,13 +53,20 @@ namespace CityInfo.API
             var connString = Configuration["connectionStrings:cityInfoDBConnectionString"];
             services.AddDbContext<CityInfoContext>(c=> c.UseSqlServer(connString));
             services.AddScoped<ICityInfoRepository, CityInfoRepository>();
+
+            //call this in case you need aspnet-user-authtype/aspnet-user-identity
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, 
             CityInfoContext cityInfoContext)
         {
-            loggerFactory.AddNLog(); //add NLogLoggerProvider
+            //add NLog to ASP.NET Core
+            loggerFactory.AddNLog();
+
+            //add NLog.Web
+            app.AddNLogWeb();
 
             if (env.IsDevelopment())
             {
