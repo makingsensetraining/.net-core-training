@@ -10,6 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Library.API.Entities;
 using Microsoft.EntityFrameworkCore;
 using Library.API.Services;
+using Library.API.Models;
+using Library.API.Helpers;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Library
 {
@@ -26,7 +29,10 @@ namespace Library
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc(setupAction => {
+                setupAction.ReturnHttpNotAcceptable = true;
+                setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+            });
 
             // register the DbContext on the container, getting the connection string from
             // appSettings (note: use this during development; in a production environment,
@@ -47,8 +53,21 @@ namespace Library
             }
             else
             {
-                app.UseExceptionHandler();
+                //global exception handling
+                app.UseExceptionHandler(appBuilder => appBuilder.Run(async context => {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsync("An exception has occured. Please try again later.");
+                }));
             }
+
+            AutoMapper.Mapper.Initialize(config =>
+            {
+                config.CreateMap<Author, AuthorDto>()
+                    .ForMember(dest => dest.Name, options => options.MapFrom(src => $"{src.FirstName} {src.LastName}"))
+                    .ForMember(dest => dest.Age, options => options.MapFrom(src => DateTimeOffsetExtensions.GetCurrentAge(src.DateOfBirth)));
+
+                config.CreateMap<Book, BookDto>();
+            });
 
             libraryContext.EnsureSeedDataForContext();
 
