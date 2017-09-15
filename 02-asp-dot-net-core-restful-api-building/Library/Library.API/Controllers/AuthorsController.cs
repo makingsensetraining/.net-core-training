@@ -12,9 +12,9 @@ namespace Library.API.Controllers
     [Route("api/authors")]
     public class AuthorsController:Controller
     {
-        private ILibraryRepository _libraryRepository;
+        private ILibraryService _libraryRepository;
 
-        public AuthorsController(ILibraryRepository libraryRepository)
+        public AuthorsController(ILibraryService libraryRepository)
         {
             _libraryRepository = libraryRepository;
         }

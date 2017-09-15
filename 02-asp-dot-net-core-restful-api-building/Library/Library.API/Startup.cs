@@ -41,7 +41,7 @@ namespace Library
             services.AddDbContext<LibraryContext>(o => o.UseSqlServer(connectionString));
 
             // register the repository
-            services.AddScoped<ILibraryRepository, LibraryRepository>();
+            services.AddScoped<ILibraryService, LibraryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

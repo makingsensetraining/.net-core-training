@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Library.API.Services
 {
-    public class LibraryRepository : ILibraryRepository
+    public class LibraryService : ILibraryService
     {
         private LibraryContext _context;
 
-        public LibraryRepository(LibraryContext context)
+        public LibraryService(LibraryContext context)
         {
             _context = context;
         }

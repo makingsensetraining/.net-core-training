@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Library.API.Services
 {
-    public interface ILibraryRepository
+    public interface ILibraryService
     {
         IEnumerable<Author> GetAuthors();
         Author GetAuthor(Guid authorId);
