@@ -2,6 +2,7 @@
 using Library.API.Entities;
 using Library.API.Models;
 using Library.API.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -54,11 +55,20 @@ namespace Library.API.Controllers
             _libraryRepository.AddAuthor(finalAuthor);
 
             if (!_libraryRepository.Save())
-                return StatusCode(500, "An error has occured. Try again later.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
 
             var authorForReturn = Mapper.Map<AuthorDto>(finalAuthor);
 
             return CreatedAtRoute("GetAuthorById",new { id= authorForReturn.Id }, authorForReturn);
+        }
+
+        [HttpPost("{id}")]
+        public IActionResult BlockAuthorCreation(Guid id)
+        {
+            if (_libraryRepository.AuthorExists(id))
+                return StatusCode(StatusCodes.Status409Conflict);
+
+            return NotFound();
         }
 
         [HttpDelete("{id}")]
@@ -72,7 +82,7 @@ namespace Library.API.Controllers
             _libraryRepository.DeleteAuthor(author);
 
             if (!_libraryRepository.Save())
-                return StatusCode(500, "An error has occured. Try again later.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
 
             return NoContent();
         }

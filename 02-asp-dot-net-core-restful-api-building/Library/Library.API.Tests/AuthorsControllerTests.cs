@@ -21,7 +21,7 @@ namespace Library.API.Tests
         }
 
         [Fact]
-        public void GetAuthos_ReturnsAListOfAuthorDto()
+        public void GetAuthors_ReturnsAListOfAuthorDto()
         {
             // Arrange
             var mockRepo = new Mock<ILibraryService>();
