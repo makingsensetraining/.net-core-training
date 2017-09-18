@@ -108,6 +108,40 @@ namespace Library.API.Tests
             Assert.Equal("GetAuthorById", createdResult.RouteName);
         }
 
+        [Fact]
+        public void DeleteAuthor_NotFound()
+        {
+            //Arrange
+            var id = Guid.NewGuid();
+            var mockRepo = new Mock<ILibraryService>();
+            mockRepo.Setup(x => x.GetAuthor(id)).Returns(null as Author);
+            var controller = new AuthorsController(mockRepo.Object);
+
+            //Act
+            var result = controller.RemoveAuthor(id);
+
+            //Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public void DeleteAuthor_Ok()
+        {
+            //Arrange
+            var id = Guid.NewGuid();
+            var mockRepo = new Mock<ILibraryService>();
+            mockRepo.Setup(x => x.GetAuthor(id)).Returns(new Author());
+            mockRepo.Setup(x => x.DeleteAuthor(new Author()));
+            mockRepo.Setup(x => x.Save()).Returns(true);
+            var controller = new AuthorsController(mockRepo.Object);
+
+            //Act
+            var result = controller.RemoveAuthor(id);
+
+            //Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
         private Author GetAuthor1()
         {
             return new Author

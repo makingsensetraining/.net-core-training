@@ -60,5 +60,21 @@ namespace Library.API.Controllers
 
             return CreatedAtRoute("GetAuthorById",new { id= authorForReturn.Id }, authorForReturn);
         }
+
+        [HttpDelete("{id}")]
+        public IActionResult RemoveAuthor(Guid id)
+        {
+            var author = _libraryRepository.GetAuthor(id);
+
+            if (author == null)
+                return NotFound();
+
+            _libraryRepository.DeleteAuthor(author);
+
+            if (!_libraryRepository.Save())
+                return StatusCode(500, "An error has occured. Try again later.");
+
+            return NoContent();
+        }
     }
 }
