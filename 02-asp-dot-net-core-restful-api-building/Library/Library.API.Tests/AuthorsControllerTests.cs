@@ -10,6 +10,7 @@ using Library.API.Entities;
 using Library.API.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Library.API.Helpers;
 
 namespace Library.API.Tests
 {
@@ -75,7 +76,21 @@ namespace Library.API.Tests
         }
 
         [Fact]
-        public void CreateAuthor_ReturnsBadRequest_WhenInvalidModelState()
+        public void CreateAuthor_ReturnsBadRequest_WhenAuthorIsNull()
+        {
+            // Arrange
+            var mockRepo = new Mock<ILibraryService>();
+            var controller = new AuthorsController(mockRepo.Object);
+
+            // Act
+            var result = controller.CreateAuthor(null);
+
+            //Result
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public void CreateAuthor_ReturnsUnprocessableEntity_WhenInvalidModelState()
         {
             // Arrange
             var mockRepo = new Mock<ILibraryService>();
@@ -86,7 +101,7 @@ namespace Library.API.Tests
             var result = controller.CreateAuthor(new AuthorForCreationDto());
 
             //Result
-            Assert.IsType<BadRequestResult>(result);
+            Assert.IsType<UnprocessableEntityObjectResult>(result);
         }
 
         [Fact]

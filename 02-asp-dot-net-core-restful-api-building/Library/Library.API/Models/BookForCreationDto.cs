@@ -13,6 +13,6 @@ namespace Library.API.Models
         public string Title { get; set; }
 
         [MaxLength(500)]
-        public string Description { get; set; }
+        public virtual string Description { get; set; }
     }
 }

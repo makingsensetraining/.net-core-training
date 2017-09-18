@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Library.API.Entities;
+using Library.API.Helpers;
 using Library.API.Models;
 using Library.API.Services;
 using Microsoft.AspNetCore.Http;
@@ -58,8 +59,11 @@ namespace Library.API.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateBookForAuthor(Guid authorId, Guid id, [FromBody] BookForUpdateDto book)
         {
-            if (book == null || !ModelState.IsValid)
+            if (book == null)
                 return BadRequest();
+
+            if (!ModelState.IsValid)
+                return new UnprocessableEntityObjectResult(ModelState);
 
             if (!_libraryService.AuthorExists(authorId))
                 return NotFound();
@@ -108,7 +112,12 @@ namespace Library.API.Controllers
             {
                 //upsert
                 var newBookForPatch = new BookForUpdateDto();
-                patchDoc.ApplyTo(newBookForPatch);
+                patchDoc.ApplyTo(newBookForPatch, ModelState);
+
+                TryValidateModel(newBookForPatch);
+
+                if (!ModelState.IsValid)
+                    return new UnprocessableEntityObjectResult(ModelState);
 
                 var newBookEntity = Mapper.Map<Book>(newBookForPatch);
                 newBookEntity.Id = id;
@@ -124,7 +133,12 @@ namespace Library.API.Controllers
             }
 
             var bookForPatch = Mapper.Map<BookForUpdateDto>(bookFromRepo);
-            patchDoc.ApplyTo(bookForPatch);
+            patchDoc.ApplyTo(bookForPatch, ModelState);
+
+            TryValidateModel(bookForPatch);
+
+            if (!ModelState.IsValid)
+                return new UnprocessableEntityObjectResult(ModelState);
 
             Mapper.Map(bookForPatch, bookFromRepo);
 

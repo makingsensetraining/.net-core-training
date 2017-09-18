@@ -44,6 +44,9 @@ namespace Library.API.Controllers
             if (authorCollection == null )
                 return BadRequest();
 
+            if (!ModelState.IsValid)
+                return new UnprocessableEntityObjectResult(ModelState);
+
             var authorEntities = AutoMapper.Mapper.Map<IList<Author>>(authorCollection);
 
             foreach (var a in authorEntities)
