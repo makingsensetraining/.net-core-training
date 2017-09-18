@@ -15,7 +15,12 @@ namespace Library.API.Profiles
                     .ForMember(dest => dest.Name, options => options.MapFrom(src => $"{src.FirstName} {src.LastName}"))
                     .ForMember(dest => dest.Age, options => options.MapFrom(src => DateTimeOffsetExtensions.GetCurrentAge(src.DateOfBirth)));
 
+            CreateMap<Models.AuthorForCreationDto, Entities.Author>();
+
             CreateMap<Entities.Book, Models.BookDto>();
+
+            CreateMap<Models.BookForCreationDto,Entities.Book>();
+            
         }
     }
 }

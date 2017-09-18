@@ -74,12 +74,46 @@ namespace Library.API.Tests
             Assert.Equal(56, model.Age);
         }
 
+        [Fact]
+        public void CreateAuthor_ReturnsBadRequest_WhenInvalidModelState()
+        {
+            // Arrange
+            var mockRepo = new Mock<ILibraryService>();
+            var controller = new AuthorsController(mockRepo.Object);
+            controller.ModelState.AddModelError("FirstName", "Required");
+
+            // Act
+            var result = controller.CreateAuthor(new AuthorForCreationDto());
+
+            //Result
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public void CreateAuthor_ReturnsAuthorDtoAndRoute_WhenCreated()
+        {
+            // Arrange
+            var mockRepo = new Mock<ILibraryService>();
+            mockRepo.Setup(x=>x.AddAuthor(new Author()));
+            mockRepo.Setup(x => x.Save()).Returns(true);
+            var controller = new AuthorsController(mockRepo.Object);
+
+            // Act
+            var result = controller.CreateAuthor(new AuthorForCreationDto());
+
+            //Result
+            var createdResult = Assert.IsType<CreatedAtRouteResult>(result);
+            var model = Assert.IsAssignableFrom<AuthorDto>(createdResult.Value);
+            Assert.NotNull(model.Id);
+            Assert.Equal("GetAuthorById", createdResult.RouteName);
+        }
+
         private Author GetAuthor1()
         {
             return new Author
             {
                 Id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}"),
-                Genre = "F",
+                Genre = "Thriller",
                 FirstName = "Author 1",
                 LastName = "The First",
                 DateOfBirth = DateTime.Now.AddYears(-56)
@@ -94,7 +128,7 @@ namespace Library.API.Tests
                 new Author
                 {
                     Id = new Guid("{FB223F91-029D-4A1B-B35D-0FF02ABFDB1F}"),
-                    Genre = "M",
+                    Genre = "Drama",
                     FirstName = "Author 2",
                     LastName = "The second",
                     DateOfBirth = DateTime.Now.AddYears(-37)
