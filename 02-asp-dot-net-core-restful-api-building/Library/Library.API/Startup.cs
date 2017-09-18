@@ -14,6 +14,8 @@ using Library.API.Models;
 using Library.API.Helpers;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Library.API.Profiles;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace Library
 {
@@ -47,7 +49,7 @@ namespace Library
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LibraryContext libraryContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LibraryContext libraryContext, ILoggerFactory loggerFactory)
         {
             if (env.IsDevelopment())
             {
@@ -57,6 +59,14 @@ namespace Library
             {
                 //global exception handling
                 app.UseExceptionHandler(appBuilder => appBuilder.Run(async context => {
+                    var exceptionHandlerFeature =  context.Features.Get<IExceptionHandlerFeature>();
+                    if (exceptionHandlerFeature != null)
+                    {
+                        //TODO: inject logger and log to file
+                        var logger = loggerFactory.CreateLogger("Global exception logger");
+                        var ex = exceptionHandlerFeature.Error;
+                        logger.LogError(500, ex, ex.Message);
+                    }
                     context.Response.StatusCode = 500;
                     await context.Response.WriteAsync("An exception has occured. Please try again later.");
                 }));
