@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Library.API.Profiles;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using NLog.Web;
 
 namespace Library
 {
@@ -49,8 +51,13 @@ namespace Library
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LibraryContext libraryContext, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LibraryContext libraryContext, 
+            ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddNLog();
+
+            app.AddNLogWeb();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

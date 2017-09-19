@@ -6,6 +6,7 @@ using Library.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,10 +18,12 @@ namespace Library.API.Controllers
     public class BooksController: Controller
     {
         private readonly ILibraryService _libraryService;
+        private readonly ILogger<BooksController> _logger;
 
-        public BooksController(ILibraryService libraryService)
+        public BooksController(ILibraryService libraryService, ILogger<BooksController> logger)
         {
             _libraryService = libraryService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -79,7 +82,11 @@ namespace Library.API.Controllers
                 _libraryService.AddBookForAuthor(authorId, bookEntity);
 
                 if (!_libraryService.Save())
+                {
+                    _logger.LogError($"Upsert failed on book {id} for author {authorId}");
                     return StatusCode(StatusCodes.Status500InternalServerError);
+                }
+                    
 
                 var bookToReturn = Mapper.Map<BookDto>(bookEntity);
 
@@ -91,7 +98,10 @@ namespace Library.API.Controllers
             _libraryService.UpdateBookForAuthor(bookFromRepo);
 
             if (!_libraryService.Save())
+            {
+                _logger.LogError($"Update failed on book {id} for author {authorId}");
                 return StatusCode(StatusCodes.Status500InternalServerError);
+            }
 
             return NoContent();
         }
@@ -125,7 +135,10 @@ namespace Library.API.Controllers
                 _libraryService.AddBookForAuthor(authorId, newBookEntity);
 
                 if (!_libraryService.Save())
+                {
+                    _logger.LogError($"Upsert failed on book {id} for author {authorId}");
                     return StatusCode(StatusCodes.Status500InternalServerError);
+                }
 
                 var bookToReturn = Mapper.Map<BookDto>(newBookEntity);
 
@@ -145,7 +158,10 @@ namespace Library.API.Controllers
             _libraryService.UpdateBookForAuthor(bookFromRepo);
 
             if (!_libraryService.Save())
+            {
+                _logger.LogError($"Update failed on book {id} for author {authorId}");
                 return StatusCode(StatusCodes.Status500InternalServerError);
+            }
 
             return NoContent();
         }
