@@ -23,9 +23,9 @@ namespace Library.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAuthors()
+        public IActionResult GetAuthors(AuthorResourceParameters authorResourceParameters)
         {
-            var authors = _libraryRepository.GetAuthors();
+            var authors = _libraryRepository.GetAuthors(authorResourceParameters);
 
             var authorsResult = Mapper.Map<IList<AuthorDto>>(authors); 
 

@@ -1,4 +1,5 @@
 ﻿using Library.API.Entities;
+using Library.API.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,9 +65,34 @@ namespace Library.API.Services
             return _context.Authors.FirstOrDefault(a => a.Id == authorId);
         }
 
-        public IEnumerable<Author> GetAuthors()
+        public IEnumerable<Author> GetAuthors(AuthorResourceParameters authorResourceParameters)
         {
-            return _context.Authors.OrderBy(a => a.FirstName).ThenBy(a => a.LastName);
+            var queryable = _context.Authors
+                .OrderBy(a => a.FirstName)
+                .ThenBy(a => a.LastName)
+                .AsQueryable();
+
+            if(authorResourceParameters.Genre != null)
+            {
+                var genre = authorResourceParameters.Genre.Trim().ToLowerInvariant();
+
+                queryable = queryable
+                    .Where(a => a.Genre.ToLowerInvariant() == genre);
+            }
+
+            if (authorResourceParameters.SearchQuery != null)
+            {
+                var searchQuery = authorResourceParameters.SearchQuery.Trim().ToLowerInvariant();
+
+                queryable = queryable
+                    .Where(a => a.Genre.ToLowerInvariant().Contains(searchQuery)
+                    || a.FirstName.ToLowerInvariant().Contains(searchQuery)
+                    || a.LastName.ToLowerInvariant().Contains(searchQuery));
+            }
+
+            return queryable
+                .Skip(authorResourceParameters.PageSize * (authorResourceParameters.PageNumber - 1))
+                .Take(authorResourceParameters.PageSize);
         }
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
