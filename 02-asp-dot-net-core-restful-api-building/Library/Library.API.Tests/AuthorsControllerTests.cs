@@ -11,6 +11,7 @@ using Library.API.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Library.API.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Library.API.Tests
 {
@@ -25,12 +26,16 @@ namespace Library.API.Tests
         public void GetAuthors_ReturnsAListOfAuthorDto()
         {
             // Arrange
+            var authorResourceParameters = new AuthorResourceParameters();
             var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(repo => repo.GetAuthors()).Returns(GetAuthors());
-            var controller = new AuthorsController(mockRepo.Object);
+            mockRepo.Setup(repo => repo.GetAuthors(authorResourceParameters)).Returns(GetAuthors());
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
+            controller.ControllerContext = new ControllerContext();
+            controller.ControllerContext.HttpContext = new DefaultHttpContext();
 
             // Act
-            var result = controller.GetAuthors();
+            var result = controller.GetAuthors(authorResourceParameters);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -43,11 +48,11 @@ namespace Library.API.Tests
         public void GetAuthor_NotFound()
         {
             // Arrange
-            Author nullAuthor = null;
             var id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}");
             var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(repo => repo.GetAuthor(id)).Returns(nullAuthor);
-            var controller = new AuthorsController(mockRepo.Object);
+            mockRepo.Setup(repo => repo.GetAuthor(id)).Returns(null as Author);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             // Act
             var result = controller.GetAuthor(id);
@@ -63,7 +68,8 @@ namespace Library.API.Tests
             var id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}");
             var mockRepo = new Mock<ILibraryService>();
             mockRepo.Setup(repo => repo.GetAuthor(id)).Returns(GetAuthor1());
-            var controller = new AuthorsController(mockRepo.Object);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             // Act
             var result = controller.GetAuthor(id);
@@ -80,7 +86,8 @@ namespace Library.API.Tests
         {
             // Arrange
             var mockRepo = new Mock<ILibraryService>();
-            var controller = new AuthorsController(mockRepo.Object);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             // Act
             var result = controller.CreateAuthor(null);
@@ -94,7 +101,8 @@ namespace Library.API.Tests
         {
             // Arrange
             var mockRepo = new Mock<ILibraryService>();
-            var controller = new AuthorsController(mockRepo.Object);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
             controller.ModelState.AddModelError("FirstName", "Required");
 
             // Act
@@ -111,7 +119,8 @@ namespace Library.API.Tests
             var mockRepo = new Mock<ILibraryService>();
             mockRepo.Setup(x=>x.AddAuthor(new Author()));
             mockRepo.Setup(x => x.Save()).Returns(true);
-            var controller = new AuthorsController(mockRepo.Object);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             // Act
             var result = controller.CreateAuthor(new AuthorForCreationDto());
@@ -130,7 +139,8 @@ namespace Library.API.Tests
             var id = Guid.NewGuid();
             var mockRepo = new Mock<ILibraryService>();
             mockRepo.Setup(x => x.GetAuthor(id)).Returns(null as Author);
-            var controller = new AuthorsController(mockRepo.Object);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             //Act
             var result = controller.RemoveAuthor(id);
@@ -148,7 +158,8 @@ namespace Library.API.Tests
             mockRepo.Setup(x => x.GetAuthor(id)).Returns(new Author());
             mockRepo.Setup(x => x.DeleteAuthor(new Author()));
             mockRepo.Setup(x => x.Save()).Returns(true);
-            var controller = new AuthorsController(mockRepo.Object);
+            var mockUrlHelper = new Mock<IUrlHelper>();
+            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             //Act
             var result = controller.RemoveAuthor(id);
@@ -169,9 +180,9 @@ namespace Library.API.Tests
             };
         }
 
-        private IList<Author> GetAuthors()
+        private PagedList<Author> GetAuthors(int pageNumber = 1, int pageSize = 10)
         {
-            return new List<Author>
+            var items = new List<Author>
             {
                 GetAuthor1(),
                 new Author
@@ -183,6 +194,8 @@ namespace Library.API.Tests
                     DateOfBirth = DateTime.Now.AddYears(-37)
                 }
             };
+            
+            return new PagedList<Author>(items, 8, pageNumber, pageSize); 
         }
     }
 }

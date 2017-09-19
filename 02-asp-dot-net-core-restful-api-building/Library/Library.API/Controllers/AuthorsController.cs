@@ -17,19 +17,64 @@ namespace Library.API.Controllers
     {
         private readonly ILibraryService _libraryRepository;
 
-        public AuthorsController(ILibraryService libraryRepository)
+        private readonly IUrlHelper _urlHelper;
+
+       public AuthorsController(ILibraryService libraryRepository, IUrlHelper urlHelper)
         {
             _libraryRepository = libraryRepository;
+            _urlHelper = urlHelper;
         }
 
-        [HttpGet]
+        [HttpGet(Name = "GetAuthors")]
         public IActionResult GetAuthors(AuthorResourceParameters authorResourceParameters)
         {
             var authors = _libraryRepository.GetAuthors(authorResourceParameters);
 
+            var previousPageUrl = authors.HasPrevious ? GetAuthorsPageUrl(ResourceUriType.PreviousPage, authorResourceParameters) : null;
+            var nextPageUrl = authors.HasNext ? GetAuthorsPageUrl(ResourceUriType.NextPage, authorResourceParameters) : null;
+
+            var pagingMetadata = new
+            {
+                pageSize = authors.PageSize,
+                pageNumber = authors.CurrentPage,
+                totalCount = authors.TotalCount,
+                totalPages = authors.TotalPages,
+                previousPageUrl = previousPageUrl,
+                nextPageUrl = nextPageUrl,
+
+            };
+
+            //Add metadata about pagination to custom header
+            Response.Headers.Add("X-Pagination", Newtonsoft.Json.JsonConvert.SerializeObject(pagingMetadata));
+
             var authorsResult = Mapper.Map<IList<AuthorDto>>(authors); 
 
             return Ok(authorsResult);
+        }
+
+        private string GetAuthorsPageUrl(ResourceUriType uriType, AuthorResourceParameters authorResourceParameters)
+        {
+            var resourceParams = new AuthorResourceParameters()
+            {
+                Genre = authorResourceParameters.Genre,
+                PageSize = authorResourceParameters.PageSize,
+                PageNumber = authorResourceParameters.PageNumber,
+                SearchQuery = authorResourceParameters.SearchQuery
+            };
+
+            switch (uriType)
+            {
+                case ResourceUriType.PreviousPage:
+                    resourceParams.PageNumber = authorResourceParameters.PageNumber - 1;
+                    break;
+                case ResourceUriType.NextPage:
+                    resourceParams.PageNumber = authorResourceParameters.PageNumber + 1;
+                    break;
+                default:
+                    break;
+            }
+
+            return _urlHelper.Link("GetAuthors", resourceParams);
         }
 
         [HttpGet("{id}", Name = "GetAuthorById")]

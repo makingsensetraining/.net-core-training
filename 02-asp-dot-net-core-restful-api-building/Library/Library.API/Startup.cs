@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using NLog.Web;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace Library
 {
@@ -48,6 +51,12 @@ namespace Library
 
             // register the repository
             services.AddScoped<ILibraryService, LibraryService>();
+
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddScoped<IUrlHelper,UrlHelper>(implementationFactory => {
+                var actionContextAccessor = implementationFactory.GetService<IActionContextAccessor>();
+                return new UrlHelper(actionContextAccessor.ActionContext);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

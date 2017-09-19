@@ -65,9 +65,9 @@ namespace Library.API.Services
             return _context.Authors.FirstOrDefault(a => a.Id == authorId);
         }
 
-        public IEnumerable<Author> GetAuthors(AuthorResourceParameters authorResourceParameters)
+        public PagedList<Author> GetAuthors(AuthorResourceParameters authorResourceParameters)
         {
-            var queryable = _context.Authors
+            var authorsBeforePaging = _context.Authors
                 .OrderBy(a => a.FirstName)
                 .ThenBy(a => a.LastName)
                 .AsQueryable();
@@ -76,7 +76,7 @@ namespace Library.API.Services
             {
                 var genre = authorResourceParameters.Genre.Trim().ToLowerInvariant();
 
-                queryable = queryable
+                authorsBeforePaging = authorsBeforePaging
                     .Where(a => a.Genre.ToLowerInvariant() == genre);
             }
 
@@ -84,15 +84,13 @@ namespace Library.API.Services
             {
                 var searchQuery = authorResourceParameters.SearchQuery.Trim().ToLowerInvariant();
 
-                queryable = queryable
+                authorsBeforePaging = authorsBeforePaging
                     .Where(a => a.Genre.ToLowerInvariant().Contains(searchQuery)
                     || a.FirstName.ToLowerInvariant().Contains(searchQuery)
                     || a.LastName.ToLowerInvariant().Contains(searchQuery));
-            }
+            }            
 
-            return queryable
-                .Skip(authorResourceParameters.PageSize * (authorResourceParameters.PageNumber - 1))
-                .Take(authorResourceParameters.PageSize);
+            return PagedList<Author>.Create(authorsBeforePaging, authorResourceParameters.PageNumber, authorResourceParameters.PageSize);
         }
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
