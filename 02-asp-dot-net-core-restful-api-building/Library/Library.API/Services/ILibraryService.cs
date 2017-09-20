@@ -2,6 +2,7 @@
 using Library.API.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Library.API.Services
 {
@@ -19,5 +20,8 @@ namespace Library.API.Services
         bool AddBookForAuthor(Guid authorId, Book book);
         bool UpdateBookForAuthor(Book book);
         bool DeleteBook(Book book);
+
+        Task<IEnumerable<Author>> GetAuthorsAsync(IEnumerable<Guid> authorIds);
+        Task<bool> AddAuthorAsync(Author author);
     }
 }

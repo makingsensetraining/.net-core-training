@@ -23,12 +23,12 @@ namespace Library.API.Controllers
 
         //(guid1,guid2,guid3)
         [HttpGet("({ids})", Name = "GetAuthorCollection")]
-        public IActionResult GetAuthorCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IList<Guid> ids)
+        public async Task<IActionResult> GetAuthorCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IList<Guid> ids)
         {
             if (ids == null)
                 return BadRequest();
 
-            var authors = _libraryService.GetAuthors(ids);
+            var authors = await _libraryService.GetAuthorsAsync(ids);
 
             if (authors.Count() != ids.Count)
                 return NotFound();
@@ -39,7 +39,7 @@ namespace Library.API.Controllers
         }
 
         [HttpPost()]
-        public IActionResult AddAuthorCollection([FromBody] IList<AuthorForCreationDto> authorCollection)
+        public async Task<IActionResult> AddAuthorCollection([FromBody] IList<AuthorForCreationDto> authorCollection)
         {
             if (authorCollection == null )
                 return BadRequest();
@@ -51,7 +51,7 @@ namespace Library.API.Controllers
 
             foreach (var a in authorEntities)
             {
-                if(!_libraryService.AddAuthor(a))
+                if(!await _libraryService.AddAuthorAsync(a))
                     return StatusCode(StatusCodes.Status500InternalServerError);
             }
 

@@ -1,8 +1,10 @@
 ﻿using Library.API.Entities;
 using Library.API.Helpers;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Library.API.Services
 {
@@ -115,6 +117,31 @@ namespace Library.API.Services
         private bool Save()
         {
             return (_context.SaveChanges() >= 0);
+        }
+
+        public async Task<Author> GetAuthorAsync(Guid authorId)
+        {
+            return await _context.Authors.FirstOrDefaultAsync(a => a.Id == authorId);
+        }
+
+        public async Task<IEnumerable<Author>> GetAuthorsAsync(IEnumerable<Guid> authorIds)
+        {
+            return await _context.Authors.Where(a => authorIds.Contains(a.Id))
+                .OrderBy(a => a.FirstName)
+                .OrderBy(a => a.LastName)
+                .ToListAsync();
+        }
+
+        public async Task<bool> AddAuthorAsync(Author author)
+        {
+            await _context.Authors.AddAsync(author);
+
+            return await SaveAsync();
+        }
+
+        private async Task<bool> SaveAsync()
+        {
+            return (await _context.SaveChangesAsync() >= 0);
         }
     }
 }
