@@ -79,9 +79,7 @@ namespace Library.API.Controllers
                 var bookEntity = Mapper.Map<Book>(book);
                 bookEntity.Id = id;
 
-                _libraryService.AddBookForAuthor(authorId, bookEntity);
-
-                if (!_libraryService.Save())
+                if (!_libraryService.AddBookForAuthor(authorId, bookEntity))
                 {
                     _logger.LogError($"Upsert failed on book {id} for author {authorId}");
                     return StatusCode(StatusCodes.Status500InternalServerError);
@@ -95,9 +93,7 @@ namespace Library.API.Controllers
                 
             Mapper.Map(book, bookFromRepo);
 
-            _libraryService.UpdateBookForAuthor(bookFromRepo);
-
-            if (!_libraryService.Save())
+            if (!_libraryService.UpdateBookForAuthor(bookFromRepo))
             {
                 _logger.LogError($"Update failed on book {id} for author {authorId}");
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -132,9 +128,7 @@ namespace Library.API.Controllers
                 var newBookEntity = Mapper.Map<Book>(newBookForPatch);
                 newBookEntity.Id = id;
 
-                _libraryService.AddBookForAuthor(authorId, newBookEntity);
-
-                if (!_libraryService.Save())
+                if (!_libraryService.AddBookForAuthor(authorId, newBookEntity))
                 {
                     _logger.LogError($"Upsert failed on book {id} for author {authorId}");
                     return StatusCode(StatusCodes.Status500InternalServerError);
@@ -155,9 +149,7 @@ namespace Library.API.Controllers
 
             Mapper.Map(bookForPatch, bookFromRepo);
 
-            _libraryService.UpdateBookForAuthor(bookFromRepo);
-
-            if (!_libraryService.Save())
+            if (!_libraryService.UpdateBookForAuthor(bookFromRepo))
             {
                 _logger.LogError($"Update failed on book {id} for author {authorId}");
                 return StatusCode(StatusCodes.Status500InternalServerError);

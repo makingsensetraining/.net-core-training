@@ -119,8 +119,7 @@ namespace Library.API.Tests
         public void CreateAuthor_ReturnsAuthorDtoAndRoute_WhenCreated()
         {
             // Arrange
-            _mockLibraryService.Setup(x=>x.AddAuthor(new Author()));
-            _mockLibraryService.Setup(x => x.Save()).Returns(true);
+            _mockLibraryService.Setup(x=>x.AddAuthor(It.IsAny<Author>())).Returns(true);
 
             // Act
             var result = _authorsController.CreateAuthor(new AuthorForCreationDto());
@@ -128,7 +127,6 @@ namespace Library.API.Tests
             //Result
             var createdResult = Assert.IsType<CreatedAtRouteResult>(result);
             var model = Assert.IsAssignableFrom<AuthorDto>(createdResult.Value);
-            Assert.NotNull(model.Id);
             Assert.Equal("GetAuthorById", createdResult.RouteName);
         }
 
@@ -151,9 +149,9 @@ namespace Library.API.Tests
         {
             //Arrange
             var id = Guid.NewGuid();
-            _mockLibraryService.Setup(x => x.GetAuthor(id)).Returns(new Author());
-            _mockLibraryService.Setup(x => x.DeleteAuthor(new Author()));
-            _mockLibraryService.Setup(x => x.Save()).Returns(true);
+            var author = new Author();
+            _mockLibraryService.Setup(x => x.GetAuthor(id)).Returns(author);
+            _mockLibraryService.Setup(x => x.DeleteAuthor(author)).Returns(true);
 
             //Act
             var result = _authorsController.RemoveAuthor(id);

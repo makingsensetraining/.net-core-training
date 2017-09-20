@@ -51,11 +51,9 @@ namespace Library.API.Controllers
 
             foreach (var a in authorEntities)
             {
-                _libraryService.AddAuthor(a);
+                if(!_libraryService.AddAuthor(a))
+                    return StatusCode(StatusCodes.Status500InternalServerError);
             }
-
-            if (!_libraryService.Save())
-                return StatusCode(StatusCodes.Status500InternalServerError);
 
             var authorCollectionToReturn = AutoMapper.Mapper.Map<IList<AuthorDto>>(authorEntities);
             var ids = string.Join(",",authorCollectionToReturn.Select(x => x.Id));

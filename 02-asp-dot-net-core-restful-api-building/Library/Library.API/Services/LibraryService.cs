@@ -15,7 +15,7 @@ namespace Library.API.Services
             _context = context;
         }
 
-        public void AddAuthor(Author author)
+        public bool AddAuthor(Author author)
         {
             author.Id = Guid.NewGuid();
             _context.Authors.Add(author);
@@ -28,9 +28,10 @@ namespace Library.API.Services
                     book.Id = Guid.NewGuid();
                 }
             }
+            return Save();
         }
 
-        public void AddBookForAuthor(Guid authorId, Book book)
+        public bool AddBookForAuthor(Guid authorId, Book book)
         {
             var author = GetAuthor(authorId);
             if (author != null)
@@ -43,6 +44,7 @@ namespace Library.API.Services
                 }
                 author.Books.Add(book);
             }
+            return Save();
         }
 
         public bool AuthorExists(Guid authorId)
@@ -50,14 +52,16 @@ namespace Library.API.Services
             return _context.Authors.Any(a => a.Id == authorId);
         }
 
-        public void DeleteAuthor(Author author)
+        public bool DeleteAuthor(Author author)
         {
             _context.Authors.Remove(author);
+            return Save();
         }
 
-        public void DeleteBook(Book book)
+        public bool DeleteBook(Book book)
         {
             _context.Books.Remove(book);
+            return Save();
         }
 
         public Author GetAuthor(Guid authorId)
@@ -101,9 +105,9 @@ namespace Library.API.Services
                 .ToList();
         }
 
-        public void UpdateAuthor(Author author)
+        public bool UpdateAuthor(Author author)
         {
-            // no code in this implementation
+            return Save();
         }
 
         public Book GetBookForAuthor(Guid authorId, Guid bookId)
@@ -118,12 +122,12 @@ namespace Library.API.Services
                         .Where(b => b.AuthorId == authorId).OrderBy(b => b.Title).ToList();
         }
 
-        public void UpdateBookForAuthor(Book book)
+        public bool UpdateBookForAuthor(Book book)
         {
-            // no code in this implementation
+            return Save();
         }
 
-        public bool Save()
+        private bool Save()
         {
             return (_context.SaveChanges() >= 0);
         }

@@ -100,10 +100,8 @@ namespace Library.API.Controllers
                 return new UnprocessableEntityObjectResult(ModelState);
 
             var finalAuthor = Mapper.Map<Author>(authorForCreation);
-
-            _libraryRepository.AddAuthor(finalAuthor);
-
-            if (!_libraryRepository.Save())
+                        
+            if (!_libraryRepository.AddAuthor(finalAuthor))
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
 
             var authorForReturn = Mapper.Map<AuthorDto>(finalAuthor);
@@ -128,9 +126,7 @@ namespace Library.API.Controllers
             if (author == null)
                 return NotFound();
 
-            _libraryRepository.DeleteAuthor(author);
-
-            if (!_libraryRepository.Save())
+            if (!_libraryRepository.DeleteAuthor(author))
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
 
             return NoContent();
