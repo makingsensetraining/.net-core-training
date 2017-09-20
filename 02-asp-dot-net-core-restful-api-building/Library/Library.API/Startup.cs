@@ -13,7 +13,7 @@ using Library.API.Services;
 using Library.API.Models;
 using Library.API.Helpers;
 using Microsoft.AspNetCore.Mvc.Formatters;
-using Library.API.Profiles;
+using Library.API.Mappers.Profiles;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;

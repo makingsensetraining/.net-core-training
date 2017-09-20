@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Library.API.Profiles
+namespace Library.API.Mappers.Profiles
 {
     public class LibraryProfile: Profile
     {

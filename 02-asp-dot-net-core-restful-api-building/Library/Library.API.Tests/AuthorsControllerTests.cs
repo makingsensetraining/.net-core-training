@@ -7,7 +7,7 @@ using System.Text;
 using Xunit;
 using Moq;
 using Library.API.Entities;
-using Library.API.Profiles;
+using Library.API.Mappers.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Library.API.Helpers;
@@ -17,9 +17,25 @@ namespace Library.API.Tests
 {
     public class AuthorsControllerTests
     {
+        private readonly Mock<ILibraryService> _mockLibraryService;
+        private readonly Mock<IUrlHelper> _mockUrlHelper;
+
+        private readonly AuthorsController _authorsController;
+
         public AuthorsControllerTests()
         {
             AutoMapper.Mapper.Initialize(config => config.AddProfile<LibraryProfile>());
+
+            _mockLibraryService = new Mock<ILibraryService>();
+            _mockUrlHelper = new Mock<IUrlHelper>();
+
+            _authorsController = new AuthorsController(_mockLibraryService.Object, _mockUrlHelper.Object)
+            {
+                ControllerContext = new ControllerContext()
+                {
+                    HttpContext = new DefaultHttpContext()
+                }
+            };
         }
 
         [Fact]
@@ -27,20 +43,15 @@ namespace Library.API.Tests
         {
             // Arrange
             var authorResourceParameters = new AuthorResourceParameters();
-            var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(repo => repo.GetAuthors(authorResourceParameters)).Returns(GetAuthors());
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
-            controller.ControllerContext = new ControllerContext();
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            _mockLibraryService.Setup(repo => repo.GetAuthors(authorResourceParameters)).Returns(GetAuthors());
 
             // Act
-            var result = controller.GetAuthors(authorResourceParameters);
+            var result = _authorsController.GetAuthors(authorResourceParameters);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var model = Assert.IsAssignableFrom<IList<AuthorDto>>(
-                okResult.Value);
+                okResult.Value);            
             Assert.Equal(2, model.Count);
         }
 
@@ -49,13 +60,10 @@ namespace Library.API.Tests
         {
             // Arrange
             var id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}");
-            var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(repo => repo.GetAuthor(id)).Returns(null as Author);
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
+            _mockLibraryService.Setup(repo => repo.GetAuthor(id)).Returns(null as Author);
 
             // Act
-            var result = controller.GetAuthor(id);
+            var result = _authorsController.GetAuthor(id);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -66,18 +74,19 @@ namespace Library.API.Tests
         {
             // Arrange
             var id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}");
-            var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(repo => repo.GetAuthor(id)).Returns(GetAuthor1());
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
+            _mockLibraryService.Setup(repo => repo.GetAuthor(id)).Returns(GetAuthor1());
 
             // Act
-            var result = controller.GetAuthor(id);
+            var result = _authorsController.GetAuthor(id);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             var model = Assert.IsAssignableFrom<AuthorDto>(
                 okResult.Value);
+
+            Assert.Equal(new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}"), model.Id);
+            Assert.Equal("Thriller", model.Genre);
+            Assert.Equal("Author 1 The First", model.Name);
             Assert.Equal(56, model.Age);
         }
 
@@ -85,12 +94,9 @@ namespace Library.API.Tests
         public void CreateAuthor_ReturnsBadRequest_WhenAuthorIsNull()
         {
             // Arrange
-            var mockRepo = new Mock<ILibraryService>();
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
 
             // Act
-            var result = controller.CreateAuthor(null);
+            var result = _authorsController.CreateAuthor(null);
 
             //Result
             Assert.IsType<BadRequestResult>(result);
@@ -100,13 +106,10 @@ namespace Library.API.Tests
         public void CreateAuthor_ReturnsUnprocessableEntity_WhenInvalidModelState()
         {
             // Arrange
-            var mockRepo = new Mock<ILibraryService>();
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
-            controller.ModelState.AddModelError("FirstName", "Required");
+            _authorsController.ModelState.AddModelError("FirstName", "Required");
 
             // Act
-            var result = controller.CreateAuthor(new AuthorForCreationDto());
+            var result = _authorsController.CreateAuthor(new AuthorForCreationDto());
 
             //Result
             Assert.IsType<UnprocessableEntityObjectResult>(result);
@@ -116,14 +119,11 @@ namespace Library.API.Tests
         public void CreateAuthor_ReturnsAuthorDtoAndRoute_WhenCreated()
         {
             // Arrange
-            var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(x=>x.AddAuthor(new Author()));
-            mockRepo.Setup(x => x.Save()).Returns(true);
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
+            _mockLibraryService.Setup(x=>x.AddAuthor(new Author()));
+            _mockLibraryService.Setup(x => x.Save()).Returns(true);
 
             // Act
-            var result = controller.CreateAuthor(new AuthorForCreationDto());
+            var result = _authorsController.CreateAuthor(new AuthorForCreationDto());
 
             //Result
             var createdResult = Assert.IsType<CreatedAtRouteResult>(result);
@@ -137,13 +137,10 @@ namespace Library.API.Tests
         {
             //Arrange
             var id = Guid.NewGuid();
-            var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(x => x.GetAuthor(id)).Returns(null as Author);
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
+            _mockLibraryService.Setup(x => x.GetAuthor(id)).Returns(null as Author);
 
             //Act
-            var result = controller.RemoveAuthor(id);
+            var result = _authorsController.RemoveAuthor(id);
 
             //Assert
             Assert.IsType<NotFoundResult>(result);
@@ -154,15 +151,12 @@ namespace Library.API.Tests
         {
             //Arrange
             var id = Guid.NewGuid();
-            var mockRepo = new Mock<ILibraryService>();
-            mockRepo.Setup(x => x.GetAuthor(id)).Returns(new Author());
-            mockRepo.Setup(x => x.DeleteAuthor(new Author()));
-            mockRepo.Setup(x => x.Save()).Returns(true);
-            var mockUrlHelper = new Mock<IUrlHelper>();
-            var controller = new AuthorsController(mockRepo.Object, mockUrlHelper.Object);
+            _mockLibraryService.Setup(x => x.GetAuthor(id)).Returns(new Author());
+            _mockLibraryService.Setup(x => x.DeleteAuthor(new Author()));
+            _mockLibraryService.Setup(x => x.Save()).Returns(true);
 
             //Act
-            var result = controller.RemoveAuthor(id);
+            var result = _authorsController.RemoveAuthor(id);
 
             //Assert
             Assert.IsType<NoContentResult>(result);
