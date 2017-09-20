@@ -60,13 +60,12 @@ namespace Library.API.Controllers
         //TODO: Delete
 
         [HttpPut("{id}")]
+        [ValidateModel]
         public IActionResult UpdateBookForAuthor(Guid authorId, Guid id, [FromBody] BookForUpdateDto book)
         {
             if (book == null)
                 return BadRequest();
 
-            if (!ModelState.IsValid)
-                return new UnprocessableEntityObjectResult(ModelState);
 
             if (!_libraryService.AuthorExists(authorId))
                 return NotFound();

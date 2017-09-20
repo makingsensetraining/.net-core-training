@@ -39,13 +39,12 @@ namespace Library.API.Controllers
         }
 
         [HttpPost()]
+        [ValidateModel]
         public async Task<IActionResult> AddAuthorCollection([FromBody] IList<AuthorForCreationDto> authorCollection)
         {
             if (authorCollection == null )
                 return BadRequest();
-
-            if (!ModelState.IsValid)
-                return new UnprocessableEntityObjectResult(ModelState);
+            
 
             var authorEntities = AutoMapper.Mapper.Map<IList<Author>>(authorCollection);
 

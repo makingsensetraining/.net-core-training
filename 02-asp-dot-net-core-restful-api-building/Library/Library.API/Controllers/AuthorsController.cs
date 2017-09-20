@@ -91,13 +91,12 @@ namespace Library.API.Controllers
         }
 
         [HttpPost]
+        [ValidateModel]
         public IActionResult CreateAuthor([FromBody] AuthorForCreationDto authorForCreation)
         {
             if (authorForCreation == null)
                 return BadRequest();
-
-            if (!ModelState.IsValid)
-                return new UnprocessableEntityObjectResult(ModelState);
+            
 
             var finalAuthor = Mapper.Map<Author>(authorForCreation);
                         
