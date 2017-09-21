@@ -26,12 +26,16 @@ namespace Library.API.Controllers
         public async Task<IActionResult> GetAuthorCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IList<Guid> ids)
         {
             if (ids == null)
+            {
                 return BadRequest();
+            }
 
             var authors = await _libraryService.GetAuthorsAsync(ids);
 
             if (authors.Count() != ids.Count)
+            {
                 return NotFound();
+            }
 
             var authorsToReturn = AutoMapper.Mapper.Map<IList<AuthorDto>>(authors);
 
@@ -43,15 +47,18 @@ namespace Library.API.Controllers
         public async Task<IActionResult> AddAuthorCollection([FromBody] IList<AuthorForCreationDto> authorCollection)
         {
             if (authorCollection == null )
+            {
                 return BadRequest();
-            
+            }
 
             var authorEntities = AutoMapper.Mapper.Map<IList<Author>>(authorCollection);
 
             foreach (var a in authorEntities)
             {
                 if(!await _libraryService.AddAuthorAsync(a))
+                {
                     return StatusCode(StatusCodes.Status500InternalServerError);
+                }
             }
 
             var authorCollectionToReturn = AutoMapper.Mapper.Map<IList<AuthorDto>>(authorEntities);

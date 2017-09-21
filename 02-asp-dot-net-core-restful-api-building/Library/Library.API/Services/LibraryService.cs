@@ -17,46 +17,46 @@ namespace Library.API.Services
             _context = context;
         }
 
-        public bool AddAuthor(Author author)
+        public async Task<bool> AddAuthorAsync(Author author)
         {
-            _context.Authors.Add(author);
+            await _context.Authors.AddAsync(author);
 
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool AddBookForAuthor(Guid authorId, Book book)
+        public async Task<bool> AddBookForAuthorAsync(Guid authorId, Book book)
         {
-            var author = GetAuthor(authorId);
+            var author = await GetAuthorAsync(authorId);
             if (author != null)
             {
                 author.Books.Add(book);
             }
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool AuthorExists(Guid authorId)
+        public async Task<bool> AuthorExistsAsync(Guid authorId)
         {
-            return _context.Authors.Any(a => a.Id == authorId);
+            return await _context.Authors.AnyAsync(a => a.Id == authorId);
         }
 
-        public bool DeleteAuthor(Author author)
+        public async Task<bool> DeleteAuthorAsync(Author author)
         {
             _context.Authors.Remove(author);
-            return Save();
+            return await SaveAsync();
         }
 
-        public bool DeleteBook(Book book)
+        public async Task<bool> DeleteBookAsync(Book book)
         {
             _context.Books.Remove(book);
-            return Save();
+            return await SaveAsync();
         }
 
-        public Author GetAuthor(Guid authorId)
+        public async Task<Author> GetAuthorAsync(Guid authorId)
         {
-            return _context.Authors.FirstOrDefault(a => a.Id == authorId);
+            return await _context.Authors.FirstOrDefaultAsync(a => a.Id == authorId);
         }
 
-        public PagedList<Author> GetAuthors(AuthorResourceParameters authorResourceParameters)
+        public async Task<PagedList<Author>> GetAuthorsAsync(AuthorResourceParameters authorResourceParameters)
         {
             var authorsBeforePaging = _context.Authors
                 .OrderBy(a => a.FirstName)
@@ -81,48 +81,10 @@ namespace Library.API.Services
                     || a.LastName.ToLowerInvariant().Contains(searchQuery));
             }            
 
-            return PagedList<Author>.Create(authorsBeforePaging, authorResourceParameters.PageNumber, authorResourceParameters.PageSize);
+            return await PagedList<Author>.CreateAsync(authorsBeforePaging, 
+                authorResourceParameters.PageNumber, authorResourceParameters.PageSize);
         }
 
-        public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
-        {
-            return _context.Authors.Where(a => authorIds.Contains(a.Id))
-                .OrderBy(a => a.FirstName)
-                .OrderBy(a => a.LastName)
-                .ToList();
-        }
-
-        public bool UpdateAuthor(Author author)
-        {
-            return Save();
-        }
-
-        public Book GetBookForAuthor(Guid authorId, Guid bookId)
-        {
-            return _context.Books
-              .Where(b => b.AuthorId == authorId && b.Id == bookId).FirstOrDefault();
-        }
-
-        public IEnumerable<Book> GetBooksForAuthor(Guid authorId)
-        {
-            return _context.Books
-                        .Where(b => b.AuthorId == authorId).OrderBy(b => b.Title).ToList();
-        }
-
-        public bool UpdateBookForAuthor(Book book)
-        {
-            return Save();
-        }
-
-        private bool Save()
-        {
-            return (_context.SaveChanges() >= 0);
-        }
-
-        public async Task<Author> GetAuthorAsync(Guid authorId)
-        {
-            return await _context.Authors.FirstOrDefaultAsync(a => a.Id == authorId);
-        }
 
         public async Task<IEnumerable<Author>> GetAuthorsAsync(IEnumerable<Guid> authorIds)
         {
@@ -132,10 +94,27 @@ namespace Library.API.Services
                 .ToListAsync();
         }
 
-        public async Task<bool> AddAuthorAsync(Author author)
+        public async Task<bool> UpdateAuthorAsync(Author author)
         {
-            await _context.Authors.AddAsync(author);
+            return await SaveAsync();
+        }
 
+        public async Task<Book> GetBookForAuthorAsync(Guid authorId, Guid bookId)
+        {
+            return await _context.Books
+              .Where(b => b.AuthorId == authorId && b.Id == bookId).FirstOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<Book>> GetBooksForAuthorAsync(Guid authorId)
+        {
+            return await _context.Books
+                        .Where(b => b.AuthorId == authorId)
+                        .OrderBy(b => b.Title)
+                        .ToListAsync();
+        }
+
+        public async Task<bool> UpdateBookForAuthorAsync(Book book)
+        {
             return await SaveAsync();
         }
 

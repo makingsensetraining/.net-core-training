@@ -27,12 +27,14 @@ namespace Library.API.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetBooksForAuthor(Guid authorId)
+        public async Task<IActionResult> GetBooksForAuthorAsync(Guid authorId)
         {
-            if (!_libraryService.AuthorExists(authorId))
+            if (!await _libraryService.AuthorExistsAsync(authorId))
+            {
                 return NotFound();
+            }
 
-            var booksFromRepo = _libraryService.GetBooksForAuthor(authorId);
+            var booksFromRepo = _libraryService.GetBooksForAuthorAsync(authorId);
 
             var books = Mapper.Map<IList<BookDto>>(booksFromRepo);
 
@@ -40,15 +42,19 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetBookForAuthor")]
-        public IActionResult GetBookForAuthor(Guid authorId, Guid id)
+        public async Task<IActionResult> GetBookForAuthorAsync(Guid authorId, Guid id)
         {
-            if (!_libraryService.AuthorExists(authorId))
+            if (!await _libraryService.AuthorExistsAsync(authorId))
+            {
                 return NotFound();
+            }
 
-            var bookFromRepo = _libraryService.GetBookForAuthor(authorId,id);
+            var bookFromRepo = _libraryService.GetBookForAuthorAsync(authorId,id);
 
             if (bookFromRepo == null)
+            {
                 return NotFound();
+            }
 
             var book = Mapper.Map<BookDto>(bookFromRepo);
 
@@ -61,16 +67,19 @@ namespace Library.API.Controllers
 
         [HttpPut("{id}")]
         [ValidateModel]
-        public IActionResult UpdateBookForAuthor(Guid authorId, Guid id, [FromBody] BookForUpdateDto book)
+        public async Task<IActionResult> UpdateBookForAuthorAsync(Guid authorId, Guid id, [FromBody] BookForUpdateDto book)
         {
             if (book == null)
+            {
                 return BadRequest();
+            }
 
-
-            if (!_libraryService.AuthorExists(authorId))
+            if (!await _libraryService.AuthorExistsAsync(authorId))
+            {
                 return NotFound();
+            }
 
-            var bookFromRepo = _libraryService.GetBookForAuthor(authorId, id);
+            var bookFromRepo = await _libraryService.GetBookForAuthorAsync(authorId, id);
 
             if (bookFromRepo == null)
             {
@@ -78,7 +87,7 @@ namespace Library.API.Controllers
                 var bookEntity = Mapper.Map<Book>(book);
                 bookEntity.Id = id;
 
-                if (!_libraryService.AddBookForAuthor(authorId, bookEntity))
+                if (!await _libraryService.AddBookForAuthorAsync(authorId, bookEntity))
                 {
                     _logger.LogError($"Upsert failed on book {id} for author {authorId}");
                     return StatusCode(StatusCodes.Status500InternalServerError);
@@ -92,7 +101,7 @@ namespace Library.API.Controllers
                 
             Mapper.Map(book, bookFromRepo);
 
-            if (!_libraryService.UpdateBookForAuthor(bookFromRepo))
+            if (!await _libraryService.UpdateBookForAuthorAsync(bookFromRepo))
             {
                 _logger.LogError($"Update failed on book {id} for author {authorId}");
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -102,16 +111,20 @@ namespace Library.API.Controllers
         }
 
         [HttpPatch("{id}")]
-        public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id, 
+        public async Task<IActionResult> PartiallyUpdateBookForAuthorAsync(Guid authorId, Guid id, 
             [FromBody] JsonPatchDocument<BookForUpdateDto> patchDoc)
         {
             if (patchDoc == null)
+            {
                 return BadRequest();
+            }
 
-            if (!_libraryService.AuthorExists(authorId))
+            if (!await _libraryService.AuthorExistsAsync(authorId))
+            {
                 return NotFound();
+            }
 
-            var bookFromRepo = _libraryService.GetBookForAuthor(authorId, id);
+            var bookFromRepo = await _libraryService.GetBookForAuthorAsync(authorId, id);
 
             if(bookFromRepo == null)
             {
@@ -122,12 +135,14 @@ namespace Library.API.Controllers
                 TryValidateModel(newBookForPatch);
 
                 if (!ModelState.IsValid)
+                {
                     return new UnprocessableEntityObjectResult(ModelState);
+                }
 
                 var newBookEntity = Mapper.Map<Book>(newBookForPatch);
                 newBookEntity.Id = id;
 
-                if (!_libraryService.AddBookForAuthor(authorId, newBookEntity))
+                if (!await _libraryService.AddBookForAuthorAsync(authorId, newBookEntity))
                 {
                     _logger.LogError($"Upsert failed on book {id} for author {authorId}");
                     return StatusCode(StatusCodes.Status500InternalServerError);
@@ -144,11 +159,13 @@ namespace Library.API.Controllers
             TryValidateModel(bookForPatch);
 
             if (!ModelState.IsValid)
+            {
                 return new UnprocessableEntityObjectResult(ModelState);
+            }
 
             Mapper.Map(bookForPatch, bookFromRepo);
 
-            if (!_libraryService.UpdateBookForAuthor(bookFromRepo))
+            if (!await _libraryService.UpdateBookForAuthorAsync(bookFromRepo))
             {
                 _logger.LogError($"Update failed on book {id} for author {authorId}");
                 return StatusCode(StatusCodes.Status500InternalServerError);

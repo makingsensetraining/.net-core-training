@@ -26,9 +26,9 @@ namespace Library.API.Controllers
         }
 
         [HttpGet(Name = "GetAuthors")]
-        public IActionResult GetAuthors(AuthorResourceParameters authorResourceParameters)
+        public async Task<IActionResult> GetAuthorsAsync(AuthorResourceParameters authorResourceParameters)
         {
-            var authors = _libraryRepository.GetAuthors(authorResourceParameters);
+            var authors = await _libraryRepository.GetAuthorsAsync(authorResourceParameters);
 
             var previousPageUrl = authors.HasPrevious ? GetAuthorsPageUrl(ResourceUriType.PreviousPage, authorResourceParameters) : null;
             var nextPageUrl = authors.HasNext ? GetAuthorsPageUrl(ResourceUriType.NextPage, authorResourceParameters) : null;
@@ -78,12 +78,14 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetAuthorById")]
-        public IActionResult GetAuthor(Guid id)
+        public async Task<IActionResult> GetAuthorAsync(Guid id)
         {
-            var author = _libraryRepository.GetAuthor(id);
+            var author = await _libraryRepository.GetAuthorAsync(id);
 
             if (author == null)
+            {
                 return NotFound();
+            }
 
             var authorResult = Mapper.Map<AuthorDto>(author);
 
@@ -92,16 +94,19 @@ namespace Library.API.Controllers
 
         [HttpPost]
         [ValidateModel]
-        public IActionResult CreateAuthor([FromBody] AuthorForCreationDto authorForCreation)
+        public async Task<IActionResult> CreateAuthorAsync([FromBody] AuthorForCreationDto authorForCreation)
         {
             if (authorForCreation == null)
+            {
                 return BadRequest();
-            
+            }
 
             var finalAuthor = Mapper.Map<Author>(authorForCreation);
                         
-            if (!_libraryRepository.AddAuthor(finalAuthor))
+            if (!await _libraryRepository.AddAuthorAsync(finalAuthor))
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
+            }
 
             var authorForReturn = Mapper.Map<AuthorDto>(finalAuthor);
 
@@ -109,24 +114,30 @@ namespace Library.API.Controllers
         }
 
         [HttpPost("{id}")]
-        public IActionResult BlockAuthorCreation(Guid id)
+        public async Task<IActionResult> BlockAuthorCreationAsync(Guid id)
         {
-            if (_libraryRepository.AuthorExists(id))
+            if (await _libraryRepository.AuthorExistsAsync(id))
+            {
                 return StatusCode(StatusCodes.Status409Conflict);
+            }
 
             return NotFound();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult RemoveAuthor(Guid id)
+        public async Task<IActionResult> RemoveAuthorAsync(Guid id)
         {
-            var author = _libraryRepository.GetAuthor(id);
+            var author = await _libraryRepository.GetAuthorAsync(id);
 
             if (author == null)
+            {
                 return NotFound();
+            }
 
-            if (!_libraryRepository.DeleteAuthor(author))
+            if (!await _libraryRepository.DeleteAuthorAsync(author))
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
+            }
 
             return NoContent();
         }

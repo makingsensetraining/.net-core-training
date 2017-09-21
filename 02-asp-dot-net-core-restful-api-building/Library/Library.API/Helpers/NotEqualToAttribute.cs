@@ -23,12 +23,16 @@ namespace Library.API.Helpers
             var property = validationContext.ObjectType.GetProperty(_comparisonProperty);
 
             if (property == null)
+            {
                 throw new ArgumentException("Property with this name not found");
+            }
 
             var comparisonValue = (string)property.GetValue(validationContext.ObjectInstance);
 
             if (string.Equals(currentValue,comparisonValue))
+            {
                 return new ValidationResult(ErrorMessage);
+            }
 
             return ValidationResult.Success;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,12 +37,13 @@ namespace Library.API.Helpers
             AddRange(items);
         }
 
-        public static PagedList<T> Create(IQueryable<T> authors, int pageNumber, int pageSize)
+        public static async Task<PagedList<T>> CreateAsync(IQueryable<T> authors, int pageNumber, int pageSize)
         {
             var totalCount = authors.Count();
-            return new PagedList<T>(authors
+            var items = await authors
                 .Skip(pageSize * (pageNumber - 1))
-                .Take(pageSize),
+                .Take(pageSize).ToListAsync();
+            return new PagedList<T>(items,
                 totalCount,
                 pageNumber,
                 pageSize);
