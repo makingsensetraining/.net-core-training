@@ -93,7 +93,6 @@ namespace Library.API.Controllers
         }
 
         [HttpPost]
-        [ValidateModel]
         public async Task<IActionResult> CreateAuthorAsync([FromBody] AuthorForCreationDto authorForCreation)
         {
             if (authorForCreation == null)

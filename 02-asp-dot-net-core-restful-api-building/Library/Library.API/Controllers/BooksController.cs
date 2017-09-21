@@ -34,7 +34,7 @@ namespace Library.API.Controllers
                 return NotFound();
             }
 
-            var booksFromRepo = _libraryService.GetBooksForAuthorAsync(authorId);
+            var booksFromRepo = await _libraryService.GetBooksForAuthorAsync(authorId);
 
             var books = Mapper.Map<IList<BookDto>>(booksFromRepo);
 
@@ -49,7 +49,7 @@ namespace Library.API.Controllers
                 return NotFound();
             }
 
-            var bookFromRepo = _libraryService.GetBookForAuthorAsync(authorId,id);
+            var bookFromRepo = await _libraryService.GetBookForAuthorAsync(authorId,id);
 
             if (bookFromRepo == null)
             {
@@ -66,7 +66,6 @@ namespace Library.API.Controllers
         //TODO: Delete
 
         [HttpPut("{id}")]
-        [ValidateModel]
         public async Task<IActionResult> UpdateBookForAuthorAsync(Guid authorId, Guid id, [FromBody] BookForUpdateDto book)
         {
             if (book == null)

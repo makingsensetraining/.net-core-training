@@ -43,7 +43,6 @@ namespace Library.API.Controllers
         }
 
         [HttpPost()]
-        [ValidateModel]
         public async Task<IActionResult> AddAuthorCollection([FromBody] IList<AuthorForCreationDto> authorCollection)
         {
             if (authorCollection == null )
