@@ -45,11 +45,6 @@ namespace Library.API.Controllers
         [HttpPost()]
         public async Task<IActionResult> AddAuthorCollection([FromBody] IList<AuthorForCreationDto> authorCollection)
         {
-            if (authorCollection == null )
-            {
-                return BadRequest();
-            }
-
             var authorEntities = AutoMapper.Mapper.Map<IList<Author>>(authorCollection);
 
             foreach (var a in authorEntities)

@@ -44,7 +44,7 @@ namespace Library.API.Tests
         {
             // Arrange
             var authorResourceParameters = new AuthorResourceParameters();
-            _mockLibraryService.Setup(repo => repo.GetAuthorsAsync(authorResourceParameters)).Returns(() => Task.FromResult(GetAuthors()));
+            _mockLibraryService.Setup(repo => repo.GetAuthorsAsync(authorResourceParameters)).ReturnsAsync(GetAuthors());
 
             // Act
             var result = await _authorsController.GetAuthorsAsync(authorResourceParameters);
@@ -61,7 +61,7 @@ namespace Library.API.Tests
         {
             // Arrange
             var id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}");
-            _mockLibraryService.Setup(repo => repo.GetAuthorAsync(id)).Returns(Task.FromResult(null as Author));
+            _mockLibraryService.Setup(repo => repo.GetAuthorAsync(id)).ReturnsAsync(null as Author);
 
             // Act
             var result = await _authorsController.GetAuthorAsync(id);
@@ -75,7 +75,7 @@ namespace Library.API.Tests
         {
             // Arrange
             var id = new Guid("{7AEA84A3-42A2-4D6C-99B6-1839AACBDFF2}");
-            _mockLibraryService.Setup(repo => repo.GetAuthorAsync(id)).Returns(Task.FromResult(GetAuthor1()));
+            _mockLibraryService.Setup(repo => repo.GetAuthorAsync(id)).ReturnsAsync(GetAuthor1());
 
             // Act
             var result = await _authorsController.GetAuthorAsync(id);
@@ -91,17 +91,17 @@ namespace Library.API.Tests
             Assert.Equal(56, model.Age);
         }
 
-        [Fact]
-        public async Task CreateAuthor_ReturnsBadRequest_WhenAuthorIsNullAsync()
-        {
-            // Arrange
+        //[Fact]
+        //public async Task CreateAuthor_ReturnsBadRequest_WhenAuthorIsNullAsync()
+        //{
+        //    // Arrange
 
-            // Act
-            var result = await _authorsController.CreateAuthorAsync(null);
+        //    // Act
+        //    var result = await _authorsController.CreateAuthorAsync(null);
 
-            //Result
-            Assert.IsType<BadRequestResult>(result);
-        }
+        //    //Result
+        //    Assert.IsType<BadRequestResult>(result);
+        //}
 
         //[Fact]
         //public async Task CreateAuthor_ReturnsUnprocessableEntity_WhenInvalidModelStateAsync()
@@ -120,7 +120,7 @@ namespace Library.API.Tests
         public async Task CreateAuthor_ReturnsAuthorDtoAndRoute_WhenCreatedAsync()
         {
             // Arrange
-            _mockLibraryService.Setup(x=>x.AddAuthorAsync(It.IsAny<Author>())).Returns(Task.FromResult(true));
+            _mockLibraryService.Setup(x=>x.AddAuthorAsync(It.IsAny<Author>())).ReturnsAsync(true);
 
             // Act
             var result = await _authorsController.CreateAuthorAsync(new AuthorForCreationDto());
@@ -136,7 +136,7 @@ namespace Library.API.Tests
         {
             //Arrange
             var id = Guid.NewGuid();
-            _mockLibraryService.Setup(x => x.GetAuthorAsync(id)).Returns(Task.FromResult(null as Author));
+            _mockLibraryService.Setup(x => x.GetAuthorAsync(id)).ReturnsAsync(null as Author);
 
             //Act
             var result = await _authorsController.RemoveAuthorAsync(id);
@@ -151,8 +151,8 @@ namespace Library.API.Tests
             //Arrange
             var id = Guid.NewGuid();
             var author = new Author();
-            _mockLibraryService.Setup(x => x.GetAuthorAsync(id)).Returns(Task.FromResult(author));
-            _mockLibraryService.Setup(x => x.DeleteAuthorAsync(author)).Returns(Task.FromResult(true));
+            _mockLibraryService.Setup(x => x.GetAuthorAsync(id)).ReturnsAsync(author);
+            _mockLibraryService.Setup(x => x.DeleteAuthorAsync(author)).ReturnsAsync(true);
 
             //Act
             var result = await _authorsController.RemoveAuthorAsync(id);
