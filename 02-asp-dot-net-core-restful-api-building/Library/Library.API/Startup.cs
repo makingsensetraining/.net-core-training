@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 
-namespace Library
+namespace Library.API
 {
     public class Startup
     {
@@ -37,28 +37,27 @@ namespace Library
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc(setupAction => {
+            services.AddMvc(setupAction =>
+            {
                 setupAction.ReturnHttpNotAcceptable = true;
                 setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
                 setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
                 setupAction.Filters.Add(new ValidateModelAttribute());
             });
 
-            // register the DbContext on the container, getting the connection string from
-            // appSettings (note: use this during development; in a production environment,
-            // it's better to store the connection string in an environment variable)
-            var connectionString = Configuration["connectionStrings:libraryDBConnectionString"];
-            services.AddDbContext<LibraryContext>(o => o.UseSqlServer(connectionString));
-
+            RegisterDbContext(services);
+           
             // register the repository
             services.AddScoped<ILibraryService, LibraryService>();
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-            services.AddScoped<IUrlHelper,UrlHelper>(implementationFactory => {
+            services.AddScoped<IUrlHelper, UrlHelper>(implementationFactory =>
+            {
                 var actionContextAccessor = implementationFactory.GetService<IActionContextAccessor>();
                 return new UrlHelper(actionContextAccessor.ActionContext);
             });
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, LibraryContext libraryContext, 
@@ -91,9 +90,26 @@ namespace Library
 
             AutoMapper.Mapper.Initialize(config => config.AddProfile<LibraryProfile>());
 
+            EnsureDatabaseCreated(libraryContext);
             libraryContext.EnsureSeedDataForContext();
 
             app.UseMvc();
         }
+
+        public virtual void EnsureDatabaseCreated(LibraryContext dbContext)
+        {
+            // run Migrations
+            dbContext.Database.Migrate();
+        }
+
+        public virtual void RegisterDbContext(IServiceCollection services)
+        {
+            // register the DbContext on the container, getting the connection string from
+            // appSettings (note: use this during development; in a production environment,
+            // it's better to store the connection string in an environment variable)
+            var connectionString = Configuration["connectionStrings:libraryDBConnectionString"];
+            services.AddDbContext<LibraryContext>(o => o.UseSqlServer(connectionString));
+        }
+
     }
 }
