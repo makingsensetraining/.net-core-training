@@ -15,20 +15,20 @@ namespace Library.API.Controllers
     [Route("api/authors")]
     public class AuthorsController:Controller
     {
-        private readonly ILibraryService _libraryRepository;
+        private readonly ILibraryService _libraryService;
 
         private readonly IUrlHelper _urlHelper;
 
-       public AuthorsController(ILibraryService libraryRepository, IUrlHelper urlHelper)
+       public AuthorsController(ILibraryService libraryService, IUrlHelper urlHelper)
         {
-            _libraryRepository = libraryRepository;
+            _libraryService = libraryService;
             _urlHelper = urlHelper;
         }
 
         [HttpGet(Name = "GetAuthors")]
         public async Task<IActionResult> GetAuthorsAsync(AuthorResourceParameters authorResourceParameters)
         {
-            var authors = await _libraryRepository.GetAuthorsAsync(authorResourceParameters);
+            var authors = await _libraryService.GetAuthorsAsync(authorResourceParameters);
 
             var previousPageUrl = authors.HasPrevious ? GetAuthorsPageUrl(ResourceUriType.PreviousPage, authorResourceParameters) : null;
             var nextPageUrl = authors.HasNext ? GetAuthorsPageUrl(ResourceUriType.NextPage, authorResourceParameters) : null;
@@ -80,7 +80,7 @@ namespace Library.API.Controllers
         [HttpGet("{id}", Name = "GetAuthorById")]
         public async Task<IActionResult> GetAuthorAsync(Guid id)
         {
-            var author = await _libraryRepository.GetAuthorAsync(id);
+            var author = await _libraryService.GetAuthorAsync(id);
 
             if (author == null)
             {
@@ -102,7 +102,7 @@ namespace Library.API.Controllers
 
             var finalAuthor = Mapper.Map<Author>(authorForCreation);
                         
-            if (!await _libraryRepository.AddAuthorAsync(finalAuthor))
+            if (!await _libraryService.AddAuthorAsync(finalAuthor))
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
             }
@@ -115,7 +115,7 @@ namespace Library.API.Controllers
         [HttpPost("{id}")]
         public async Task<IActionResult> BlockAuthorCreationAsync(Guid id)
         {
-            if (await _libraryRepository.AuthorExistsAsync(id))
+            if (await _libraryService.AuthorExistsAsync(id))
             {
                 return StatusCode(StatusCodes.Status409Conflict);
             }
@@ -126,14 +126,14 @@ namespace Library.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> RemoveAuthorAsync(Guid id)
         {
-            var author = await _libraryRepository.GetAuthorAsync(id);
+            var author = await _libraryService.GetAuthorAsync(id);
 
             if (author == null)
             {
                 return NotFound();
             }
 
-            if (!await _libraryRepository.DeleteAuthorAsync(author))
+            if (!await _libraryService.DeleteAuthorAsync(author))
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
             }
