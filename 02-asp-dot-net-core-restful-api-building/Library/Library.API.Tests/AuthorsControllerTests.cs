@@ -120,7 +120,7 @@ namespace Library.API.Tests
         public async Task CreateAuthor_ReturnsAuthorDtoAndRoute_WhenCreatedAsync()
         {
             // Arrange
-            _mockLibraryService.Setup(x=>x.AddAuthorAsync(It.IsAny<Author>())).ReturnsAsync(true);
+            _mockLibraryService.Setup(x=>x.AddAuthorAsync(It.IsAny<Author>())).Returns(Task.CompletedTask);
 
             // Act
             var result = await _authorsController.CreateAuthorAsync(new AuthorForCreationDto());
@@ -152,7 +152,7 @@ namespace Library.API.Tests
             var id = Guid.NewGuid();
             var author = new Author();
             _mockLibraryService.Setup(x => x.GetAuthorAsync(id)).ReturnsAsync(author);
-            _mockLibraryService.Setup(x => x.DeleteAuthorAsync(author)).ReturnsAsync(true);
+            _mockLibraryService.Setup(x => x.DeleteAuthorAsync(author)).Returns(Task.CompletedTask);
 
             //Act
             var result = await _authorsController.RemoveAuthorAsync(id);

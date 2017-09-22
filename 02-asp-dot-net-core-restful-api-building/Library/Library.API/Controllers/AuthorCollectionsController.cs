@@ -49,10 +49,7 @@ namespace Library.API.Controllers
 
             foreach (var a in authorEntities)
             {
-                if(!await _libraryService.AddAuthorAsync(a))
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
+                await _libraryService.AddAuthorAsync(a);
             }
 
             var authorCollectionToReturn = AutoMapper.Mapper.Map<IList<AuthorDto>>(authorEntities);

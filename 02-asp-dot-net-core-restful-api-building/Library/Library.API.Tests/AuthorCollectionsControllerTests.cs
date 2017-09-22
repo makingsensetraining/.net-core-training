@@ -92,7 +92,7 @@ namespace Library.API.Tests
         public async Task AddAuthorCollection_ReturnsAuthorsDtoAndRoute_WhenCreatedAsync()
         {
             // Arrange
-            _mockLibraryService.Setup(x => x.AddAuthorAsync(It.IsAny<Author>())).ReturnsAsync(true);
+            _mockLibraryService.Setup(x => x.AddAuthorAsync(It.IsAny<Author>())).Returns(Task.CompletedTask);
             var authorList = new List<AuthorForCreationDto> { new AuthorForCreationDto(), new AuthorForCreationDto() };
 
             // Act

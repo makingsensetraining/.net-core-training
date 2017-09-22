@@ -36,22 +36,22 @@ namespace Library.API.Services
         /// Send a request to create an author.
         /// </summary>
         /// <param name="author">The new author.</param>
-        /// <returns>An asynchronous operation with a flag that indicates whether the author was created.</returns>
-        Task<bool> AddAuthorAsync(Author author);
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task AddAuthorAsync(Author author);
 
         /// <summary>
         /// Send a request to delete an author.
         /// </summary>
         /// <param name="author">The author to delete.</param>
-        /// <returns>An asynchronous operation with a flag that indicates whether the author was removed.</returns>
-        Task<bool> DeleteAuthorAsync(Author author);
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task DeleteAuthorAsync(Author author);
 
         /// <summary>
         /// Send a request to update an author.
         /// </summary>
         /// <param name="author">The author to update.</param>
-        /// <returns>An asynchronous operation with a flag that indicates whether the author was updated.</returns>
-        Task<bool> UpdateAuthorAsync(Author author);
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task UpdateAuthorAsync(Author author);
 
         /// <summary>
         /// Send a request to check if a user exists.
@@ -80,22 +80,22 @@ namespace Library.API.Services
         /// </summary>
         /// <param name="authorId">The Guid that represents the Id of the author of the book.</param>
         /// <param name="book">The new book.</param>
-        /// <returns>An asynchronous operation with a flag that indicates whether the book was created.</returns>
-        Task<bool> AddBookForAuthorAsync(Guid authorId, Book book);
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task AddBookForAuthorAsync(Guid authorId, Book book);
 
         /// <summary>
         /// Send a request to update a book.
         /// </summary>
         /// <param name="book">The book to update.</param>
-        /// <returns>An asynchronous operation with a flag that indicates whether the book was updated.</returns>
-        Task<bool> UpdateBookForAuthorAsync(Book book);
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task UpdateBookForAuthorAsync(Book book);
 
         /// <summary>
         /// Send a request to delete a book.
         /// </summary>
         /// <param name="book">The book to delete.</param>
-        /// <returns>An asynchronous operation with a flag that indicates whether the book was removed.</returns>
-        Task<bool> DeleteBookAsync(Book book);
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task DeleteBookAsync(Book book);
         
     }
 }

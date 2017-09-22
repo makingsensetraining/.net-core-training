@@ -101,11 +101,8 @@ namespace Library.API.Controllers
             }
 
             var finalAuthor = Mapper.Map<Author>(authorForCreation);
-                        
-            if (!await _libraryService.AddAuthorAsync(finalAuthor))
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
-            }
+
+            await _libraryService.AddAuthorAsync(finalAuthor);
 
             var authorForReturn = Mapper.Map<AuthorDto>(finalAuthor);
 
@@ -133,10 +130,7 @@ namespace Library.API.Controllers
                 return NotFound();
             }
 
-            if (!await _libraryService.DeleteAuthorAsync(author))
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error has occured. Try again later.");
-            }
+            await _libraryService.DeleteAuthorAsync(author);
 
             return NoContent();
         }

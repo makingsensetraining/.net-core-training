@@ -86,12 +86,7 @@ namespace Library.API.Controllers
                 var bookEntity = Mapper.Map<Book>(book);
                 bookEntity.Id = id;
 
-                if (!await _libraryService.AddBookForAuthorAsync(authorId, bookEntity))
-                {
-                    _logger.LogError($"Upsert failed on book {id} for author {authorId}");
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
-                    
+                await _libraryService.AddBookForAuthorAsync(authorId, bookEntity);                  
 
                 var bookToReturn = Mapper.Map<BookDto>(bookEntity);
 
@@ -100,11 +95,7 @@ namespace Library.API.Controllers
                 
             Mapper.Map(book, bookFromRepo);
 
-            if (!await _libraryService.UpdateBookForAuthorAsync(bookFromRepo))
-            {
-                _logger.LogError($"Update failed on book {id} for author {authorId}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            await _libraryService.UpdateBookForAuthorAsync(bookFromRepo);
 
             return NoContent();
         }
@@ -141,11 +132,7 @@ namespace Library.API.Controllers
                 var newBookEntity = Mapper.Map<Book>(newBookForPatch);
                 newBookEntity.Id = id;
 
-                if (!await _libraryService.AddBookForAuthorAsync(authorId, newBookEntity))
-                {
-                    _logger.LogError($"Upsert failed on book {id} for author {authorId}");
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
+                await _libraryService.AddBookForAuthorAsync(authorId, newBookEntity);
 
                 var bookToReturn = Mapper.Map<BookDto>(newBookEntity);
 
@@ -164,12 +151,8 @@ namespace Library.API.Controllers
 
             Mapper.Map(bookForPatch, bookFromRepo);
 
-            if (!await _libraryService.UpdateBookForAuthorAsync(bookFromRepo))
-            {
-                _logger.LogError($"Update failed on book {id} for author {authorId}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-
+            await _libraryService.UpdateBookForAuthorAsync(bookFromRepo);
+            
             return NoContent();
         }
     }

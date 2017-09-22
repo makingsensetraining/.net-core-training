@@ -17,21 +17,21 @@ namespace Library.API.Services
             _context = context;
         }
 
-        public async Task<bool> AddAuthorAsync(Author author)
+        public async Task AddAuthorAsync(Author author)
         {
             await _context.Authors.AddAsync(author);
 
-            return await SaveAsync();
+            await SaveAsync();
         }
 
-        public async Task<bool> AddBookForAuthorAsync(Guid authorId, Book book)
+        public async Task AddBookForAuthorAsync(Guid authorId, Book book)
         {
             var author = await GetAuthorAsync(authorId);
             if (author != null)
             {
                 author.Books.Add(book);
             }
-            return await SaveAsync();
+            await SaveAsync();
         }
 
         public async Task<bool> AuthorExistsAsync(Guid authorId)
@@ -39,16 +39,16 @@ namespace Library.API.Services
             return await _context.Authors.AnyAsync(a => a.Id == authorId);
         }
 
-        public async Task<bool> DeleteAuthorAsync(Author author)
+        public async Task DeleteAuthorAsync(Author author)
         {
             _context.Authors.Remove(author);
-            return await SaveAsync();
+            await SaveAsync();
         }
 
-        public async Task<bool> DeleteBookAsync(Book book)
+        public async Task DeleteBookAsync(Book book)
         {
             _context.Books.Remove(book);
-            return await SaveAsync();
+            await SaveAsync();
         }
 
         public async Task<Author> GetAuthorAsync(Guid authorId)
@@ -94,9 +94,9 @@ namespace Library.API.Services
                 .ToListAsync();
         }
 
-        public async Task<bool> UpdateAuthorAsync(Author author)
+        public async Task UpdateAuthorAsync(Author author)
         {
-            return await SaveAsync();
+            await SaveAsync();
         }
 
         public async Task<Book> GetBookForAuthorAsync(Guid authorId, Guid bookId)
@@ -113,14 +113,14 @@ namespace Library.API.Services
                         .ToListAsync();
         }
 
-        public async Task<bool> UpdateBookForAuthorAsync(Book book)
+        public async Task UpdateBookForAuthorAsync(Book book)
         {
-            return await SaveAsync();
+            await SaveAsync();
         }
 
-        private async Task<bool> SaveAsync()
+        private async Task SaveAsync()
         {
-            return (await _context.SaveChangesAsync() >= 0);
+            await _context.SaveChangesAsync();
         }
     }
 }
